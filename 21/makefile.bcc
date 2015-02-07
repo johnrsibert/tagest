@@ -1,0 +1,196 @@
+.AUTODEPEND
+#SHELL=c:\winnt\sysem32\cmd.exe
+.SUFFIXES:
+.SUFFIXES: .cpp .obj .java .class
+.PHONY: ALL CLEAN
+# edit bcc32.cfg in the Borland bin directory
+#CC = bcc32 +mm.cfg
+CC = bcc32
+LL = ilink32
+LIB = tlib
+BIN_DIR = d:\movemod\bin
+#CFLAGS =  -v -Vd -5 -H=movemod.csm -c -f -O2 -D__REGIONAL__  -I..
+#EXE_LFLAGS = -v -Tpe -ap -x -L. c0x32
+CFLAGS = -Vd -5 -H -c -f -O2 -DOPT_LIB -D__REGIONAL__  -I..
+EXE_LFLAGS = -Tpe -ap -x -L. c0x32
+DLL_LFLAGS = -Tpd -ap -x -L. c0d32
+
+JC = d:\apps2\jdk1.2.2\bin\javac
+JFLAGS = -classpath d:\movemod\bin\jnigraphics2.zip;d:\apps2\jdk1.2.2\lib 
+
+!include OBJECTS.LST
+
+ALL: \
+ movemod.lib \
+ rtagest21.exe \
+ makemap.exe \
+ rtagmove.dll \
+ pattdisp.dll \
+ rtagmove.exe \
+ fit_tab.exe \
+ rtac.exe \
+ covar21.exe \
+#gridrenumb.exe \
+ gis_files.exe \
+ wormwalk.dll \
+ make_ifr.exe \
+ make_par.exe \
+ halflife.dll
+#popsim.dll
+
+CLEAN:
+	rm -f *.obj
+	rm -f *.lib
+	rm -f *.rsp
+	rm -f *.ilc
+	rm -f *.ild
+	rm -f *.ilf
+	rm -f *.ils
+	rm -f *.tds
+	rm -f ..\*.class
+
+
+
+movemod.lib: 
+	make -f movelib.mak
+
+rtagmove.dll: $(RTAGMOVE_OBJECTS) rtagmove.class
+	@echo ------- Linking $@
+	$(LL) $(DLL_LFLAGS) @&&|
+ $(RTAGMOVE_OBJECTS), $@,,import32.lib cw32.lib movemod ads32 orl32 jnigraphics2
+|
+	mv $@ $(BIN_DIR)
+	cp ..\rtagmove.class $(BIN_DIR)
+
+popsim.dll: $(POPSIM_OBJECTS) popsim.class
+	@echo ------- Linking $@
+	$(LL) $(DLL_LFLAGS) @&&|
+ $(POPSIM_OBJECTS), $@,,import32.lib cw32.lib movemod ado32 orl32 jnigraphics2
+|
+	mv $@ $(BIN_DIR)
+	cp ..\popsim.class $(BIN_DIR)
+
+halflife.dll: $(HALFLIFE_OBJECTS) halflife.class
+	@echo ------- Linking $@
+	$(LL) $(DLL_LFLAGS) @&&|
+ $(HALFLIFE_OBJECTS), $@,,import32.lib cw32.lib movemod ads32 orl32 jnigraphics2
+|
+	mv $@ $(BIN_DIR)
+	cp ..\halflife.class $(BIN_DIR)
+
+pattdisp.dll: $(PATTDISP_OBJECTS) pattdisp.class
+	@echo ------- Linking $@
+	$(LL) $(DLL_LFLAGS) @&&|
+ $(PATTDISP_OBJECTS), $@,,import32.lib cw32.lib movemod ads32 orl32 jnigraphics2
+|
+	mv $@ $(BIN_DIR)
+	cp ..\pattdisp.class $(BIN_DIR)
+
+make_ifr.exe: $(MAKEIFR_OBJECTS)
+	@echo ------- Linking $@
+	$(LL) $(EXE_LFLAGS) @&&|
+ $(MAKEIFR_OBJECTS), $@,,import32.lib cw32.lib movemod ads32 orl32
+|
+	mv $@ $(BIN_DIR)
+
+make_par.exe: $(MAKEPAR_OBJECTS)
+	@echo ------- Linking $@
+	$(LL) $(EXE_LFLAGS) @&&|
+ $(MAKEPAR_OBJECTS), $@,,import32.lib cw32.lib movemod ads32 orl32
+|
+	mv $@ $(BIN_DIR)
+#mv $@ d:\movemod\maldive\test
+#mv make_par22.tds d:\movemod\maldive\test 
+
+wormwalk.dll: $(WORMWALK_OBJECTS) wormwalk.class
+	@echo ------- Linking $@
+	$(LL) $(DLL_LFLAGS) @&&|
+ $(WORMWALK_OBJECTS), $@,,import32.lib cw32.lib movemod ads32 orl32 jnigraphics2
+|
+	mv $@ $(BIN_DIR)
+	cp ..\$*.class $(BIN_DIR)
+
+rtagest21.exe: $(RTAGEST_OBJECTS)
+	@echo ------- Linking $@
+	$(LL) $(EXE_LFLAGS) @&&|
+ $(RTAGEST_OBJECTS), $@,,import32.lib cw32.lib movemod ado32 orl32
+|
+	mv $@ $(BIN_DIR)
+#mv $@ d:\movemod\maldive\t21\1
+#mv rtagest21.tds d:\movemod\maldive\t21\1
+
+makemap.exe: $(MAKEMAP_OBJECTS)
+	@echo ------- Linking $@
+	$(LL) $(EXE_LFLAGS) @&&|
+ $(MAKEMAP_OBJECTS), $@,,import32.lib cw32.lib movemod ado32 orl32
+|
+	mv $@ $(BIN_DIR)
+
+rtagmove.exe: $(EXE_RTAGMOVE_OBJECTS)
+	@echo ------- Linking $@
+	$(LL) $(EXE_LFLAGS) @&&|
+ $(EXE_RTAGMOVE_OBJECTS), $@,,import32.lib cw32.lib movemod ads32 orl32 jnigraphics2
+|
+	mv $@ $(BIN_DIR)
+
+fit_tab.exe: $(FIT_TAB_OBJECTS)
+	@echo ------- Linking $@
+	$(LL) $(EXE_LFLAGS) @&&|
+ $(FIT_TAB_OBJECTS), $@,,import32.lib cw32.lib movemod ado32 orl32
+|
+	mv $@ $(BIN_DIR)
+
+rtac.exe: $(RTAC_OBJECTS)
+	@echo ------- Linking $@
+	$(LL) $(EXE_LFLAGS) @&&|
+ $(RTAC_OBJECTS), $@,,import32.lib cw32.lib movemod ado32 orl32
+|
+	mv $@ $(BIN_DIR)
+
+covar21.exe: $(COVAR_OBJECTS)
+	@echo ------- Linking $@
+	$(LL) $(EXE_LFLAGS) @&&|
+ $(COVAR_OBJECTS), $@,,import32.lib cw32.lib movemod ado32 orl32
+|
+	mv $@ $(BIN_DIR)
+
+gis_files.exe: $(GIS_FILES_OBJECTS)
+	@echo ------- Linking $@
+	$(LL) $(EXE_LFLAGS) @&&|
+ $(GIS_FILES_OBJECTS), $@,,import32.lib cw32.lib movemod ado32 orl32
+|
+	mv $@ $(BIN_DIR)
+
+###############
+
+exe_tagmove15.obj: ..\tagmove15.cpp
+	@echo ------- Compiling $@
+	$(CC) $(CFLAGS) -D__MAKE_EXECUTABLE__ -o$@ ..\tagmove15.cpp
+
+{..}.cpp.obj:
+	@echo ------- Compiling $@
+	$(CC) $(CFLAGS) $< 
+
+rtagmove.class: ..\rtagmove.java
+	@echo ------- Java Compiling $@
+	$(JC) $(JFLAGS) ..\$*.java 
+
+pattdisp.class: ..\pattdisp.java
+	@echo ------- Java Compiling $@
+	$(JC) $(JFLAGS) ..\$*.java 
+
+MakeIfr.class: ..\MakeIfr.java
+	@echo ------- Java Compiling $@
+	$(JC) $(JFLAGS) ..\$*.java 
+
+wormwalk.class: ..\wormwalk.java
+	@echo ------- Java Compiling $@
+	$(JC) $(JFLAGS) ..\$*.java 
+
+popsim.class: ..\popsim.java
+	@echo ------- Java Compiling $@
+	$(JC) $(JFLAGS) ..\$*.java 
+
+halflife.class: ..\halflife.java
+	@echo ------- Java Compiling $@
+	$(JC) $(JFLAGS) ..\$*.java 

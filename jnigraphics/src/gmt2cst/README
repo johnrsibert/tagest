@@ -1,0 +1,63 @@
+Description
+
+  gmt2cst converts a gmt coastline file from pscoast to a jnigraphics cst file which is used for drawing the coastlines.
+
+Prerequisites
+
+  - ADMB installed
+  - jnigraphics installed
+  - gmt installed
+  - GNU make
+  - GNU g++
+  - Sun Java
+
+Usage
+
+  To view command line help, type the command below into a terminal:
+
+  $ ./gmt2cst
+  Usage: ./gmt2cst <pscoast gmt file> <south west corner longitude (degrees)> <south west corner latitude (degrees)>
+
+Example
+
+  The pscoast gmt file is created with the following command:
+
+  $ PATH=/usr/local/gmt/bin:$(PATH) pscoast -R115/195/-20/15 -Dc -W -M -JM5 > example.gmt
+
+  Please refer to http://gmt.soest.hawaii.edu/gmt/doc/gmt/html/man/pscoast.html for arguments descriptions. 
+
+
+  After the pscoast creates the coast file, run gmt2cst to convert to jnigraphics cst file.
+  
+  $ ./gmt2cst example.gmt 115 -20
+ 
+    - 'example.gmt' is the input file created from GMT pscoast program
+    - '115' is 115W longitude
+    - '-20' is 20S latitude
+
+    After the program finishes, it will output two files
+    - example.gmt.cst
+      this is the jnigraphics input file
+
+    - example.gmt.combined
+      This is the combined gmt input file with the combined segments there are two types of segments, Closed and Open. The Closed segments have have matching beginning and end points.  The Open segments have different beginning and end points.  For the Open segments, the user will need to manually connect the segments, then rerun the gmt2cst using the modified file.
+
+      ie 
+    
+      $ ./gmt2cst example.gmt.combined 115 -20
+
+      Although there are Open segments, jnigraphics is still able to plot the coastlines using example.cst file.  The problem will be that some of the coastlines will be incorrectly drawn.  But if the display correctly draws the coastlines, it is not necessay to modify the gmt file.
+
+Building
+
+  gmt2cst builds and run on a linux operating system using GNU g++ compiler.   It was not tested on other operating systems/compiler combinations.  To build and run the test gmt2cst, first edit the Makefile and change the following lineswith values for the local computer. 
+
+  JNIGRAPHICS_HOME=/home/katsuo/johnoel/jnigraphics/jnigraphics
+  JAVA_HOME=/usr/local/java
+  ADMB_HOME=/usr/local/admb
+
+  Next, run the build
+
+  $ make
+
+  It will build then display the an example coastfile with jnigraphics package. Close the window to exit the build.

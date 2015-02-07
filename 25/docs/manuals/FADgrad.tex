@@ -1,0 +1,119 @@
+\documentclass[12pt,letterpaper]{article}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage[pdftex,bookmarksopen]{hyperref}
+\hypersetup{pdfauthor={John Sibert}}
+\hypersetup{pdfsubject={tagest User's Manual}}
+\hypersetup{pdftitle={tagest Users Manual}}
+\hypersetup{pdfkeywords={tagest, tagmove, jnigraphics, tag attrition,
+ADRM}}
+\hypersetup{pdfpagemode=UseThumbs}
+
+%\markright{Sibert \hfil tagest User's Manual\hfil \today}
+
+\newcommand\doublespacing{\baselineskip=1.6\normalbaselineskip}
+\newcommand\singlespacing{\baselineskip=1.0\normalbaselineskip}
+\renewcommand\deg[1]{$^\circ$#1}
+\newcommand\uvD{$(uvD)$}
+\newcommand\SD{SEAPODYM}
+\newcommand\SDTE{SEAPODYM-TAGEST}
+\newcommand\UK{uKfSST}
+\newcommand\EK{ensemble Kalman filter}
+\newcommand\ADMB{ADModel Builder} \title{\TT\ User's Manual}
+\newcommand\help[1]{\color{red}{\it #1 }\normalcolor}
+\newcommand\TT{{\tt tagest \& tagmove}}
+\newcommand\TE{{\tt tagest}}
+\newcommand\TM{{\tt tagmove}}
+\newcommand\PAR{{\tt .par}}
+\newcommand\TAG{{\tt .tag}}
+\newcommand\ADRM{Advection Diffusion Reaction Model}
+
+\author{
+John Sibert\thanks{sibert@hawaii.edu}\\
+Joint Institute of Marine and Atmospheric Research\\
+University of Hawai'i at Manoa\\
+Honolulu, HI  96822 U.S.A.\\[0.125in]
+\date{\today}
+}
+
+\title{Using FAD gradients to compute advection in \TT}
+
+\begin{document}
+\maketitle
+
+\doublespacing
+
+Let $[z]$ mean ``the unit (or dimension) of the variable $z$''.
+The unit of the advective components, $u$ and $v$, of movement in \TT\
+is nautical miles per month or nm mo$^{-1}$; 
+$[u] = $ nm mo$^{-1}$.
+(Confusingly, $(u,v)$ are reported in
+nm da$^{-1}$ in the \PAR\ files and converted to nm mo$^{-1}$ in {\tt
+uvcomp.cpp}.) 
+
+Let $G$ be the density of FADs;  $[G] = $ FADs nm$^{-2}$. We are
+interested in relating the horizontal gradients of FAD density to
+advection  by a simple function such that $u = f(\frac{dG}{dx})$;
+$[\frac{dG}{dx}] = $ FADs nm$^{-2}$nm$^{-1} = $ FADs nm$^{-3}$. Here
+are three possible formulations for $f(\frac{dG}{dx})$.
+
+1. Simple linear relationship between advection and
+FAD gradient 
+\[
+u = C\cdot \frac{dG}{dx}
+.\] 
+What is [C]? 
+We can write $[u] = [C]\cdot [\frac{dG}{dx}]$ and solve for $[C]$.
+\[
+[C] = \frac{[u]}{[\frac{dG}{dx}]} 
+    = \frac{{\rm nm\; mo}^{-1}}{\rm{FADs\;nm}^{-3}}
+.
+\]
+%   = \frac{{\rm mo}^{-1}}{\rm{FADs\;nm}^{-2}}
+%   = \frac{1}{{\rm FADs}}\cdot\frac{{\rm nm}^{2}}{\rm{mo}}
+%   = \frac{{\rm nm}}{{\rm FADs}}\cdot\frac{{\rm nm}}{{\rm mo}}
+Any way you try to simplify the units, $C$ is an awkward constant.
+
+2. The current model assumes slightly different linear relationship
+\[
+u = C \cdot s^* \cdot \frac{dG}{dx},
+\]
+where $s^*$ is the maximum sustained swimming speed;
+$[s^*] = {\rm nm\; mo}^{-1}$.
+Then
+\[
+[C] = \frac{[u]}{[s^*][\frac{dG}{dx}]} 
+    = \frac{{\rm nm\; mo}^{-1}}{{\rm nm\; mo}^{-1}\cdot\rm{FADs\;nm}^{-3}}
+    = \frac{1}{\rm{FADs\;nm}^{-3}}
+,\]
+which appears to directly relate advection to the gradient of FAD
+density.
+
+3. It is possible to ``normalize'' the FAD density to the mean FAD
+density. Let $G^* = G/\bar{G}$, where $\bar{G}$ is the mean FAD
+density; $[\bar{G}] = {\rm{FADs\;nm}^{-2}}$.
+Then $\frac{dG^*}{dx} = \frac{1}{\bar{G}}\cdot\frac{dG}{dx}$.
+
+
+\[
+u = C \cdot \frac{s^*}{\bar{G}} \cdot \frac{dG}{dx},
+\]
+where $s^*$ is the maximum sustained swimming speed as before.
+Then
+\[
+[C] = \frac{[u]}{\frac{[s^*]}{[\bar{G}]}\cdot[\frac{dG}{dx}]} 
+    = \frac{[u]\cdot[\bar{G}]}{[s^*]\cdot[\frac{dG}{dx}]} 
+    = \frac{{\rm nm\; mo}^{-1}\cdot{\rm{FADs\;nm}^{-2}}}{{\rm nm\; mo}^{-1}\cdot\rm{FADs\;nm}^{-3}}
+    = \frac{1}{\rm{FADs\;nm}^{-1}}
+.\]
+
+It is hard to say which of these three alternatives are best. I was
+hoping for a dimensionless coefficient, but couldn't find it easily.
+You should check my math though. I sort of like the third option
+because the dimensions are simpler and the normalization gets avoid
+some problems of interpreting the weighting factor as a measure of
+regional sensitivity.
+
+\end{document}

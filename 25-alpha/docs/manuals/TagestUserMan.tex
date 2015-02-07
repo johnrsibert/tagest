@@ -1,0 +1,61 @@
+\documentclass[12pt,letterpaper]{report}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage[pdftex,bookmarksopen]{hyperref}
+\usepackage{rotating}
+\hypersetup{pdfauthor={John Sibert}}
+\hypersetup{pdfsubject={tagest User's Manual}}
+\hypersetup{pdftitle={tagest Users Manual}}
+\hypersetup{pdfkeywords={tagest, tagmove, jnigraphics, tag attrition,
+ADRM}}
+\hypersetup{pdfpagemode=UseThumbs,bookmarksopen=true}
+
+\markright{Sibert \hfil tagest User's Manual\hfil \today}
+
+\newcommand\doublespacing{\baselineskip=1.6\normalbaselineskip}
+\newcommand\singlespacing{\baselineskip=1.0\normalbaselineskip}
+\renewcommand\deg[1]{$^\circ$#1}
+\newcommand\uvD{$(uvD)$}
+\newcommand\SD{SEAPODYM}
+\newcommand\SDTE{SEAPODYM-TAGEST}
+\newcommand\UK{uKfSST}
+\newcommand\EK{ensemble Kalman filter}
+\newcommand\ADMB{ADModel Builder} \title{\TT\ User's Manual}
+\newcommand\help[1]{\color{red}{\it #1 }\normalcolor}
+\newcommand\TT{{\tt tagest \& tagmove}}
+\newcommand\TE{{\tt tagest}}
+\newcommand\TM{{\tt tagmove}}
+\newcommand\PAR{{\tt .par}}
+\newcommand\TAG{{\tt .tag}}
+\newcommand\ADRM{Advection Diffusion Reaction Model}
+\newcommand\widebar[1]{\overline{#1}}
+
+\author{
+John Sibert\thanks{sibert@hawaii.edu}\\
+Joint Institute of Marine and Atmospheric Research\\
+University of Hawai'i at Manoa\\
+Honolulu, HI  96822 U.S.A.\\[0.125in]
+\date{\today}
+}
+
+\title{\TT\ User's Manual}
+
+\begin{document}
+\begin{titlepage}
+\maketitle
+\end{titlepage}
+
+%~\clearpage\thispagestyle{empty}
+%\begin{abstract}
+%\begin{center}\help{Write Me}\end{center}
+%\end{abstract}
+\clearpage\thispagestyle{empty}
+\clearpage\pagestyle{myheadings}
+%\doublespacing
+\setcounter{page}{1}
+
+\input TagestUserManText
+
+\end{document}

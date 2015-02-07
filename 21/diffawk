@@ -1,0 +1,1 @@
+{print   "call do_diff",   $0 }

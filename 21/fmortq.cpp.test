@@ -1,0 +1,24 @@
+#include "par_t.h"
+
+void par_t::fish_mort_comp(d3_array& f_mort, const d3_array& effort, year_month& date)
+{
+  for (int f = 1; f <= nfleet;  f++)
+  {
+    f_mort(f) = q(f)*effort(f);
+  }
+}
+
+#ifndef SIMULATE
+void par_t::df_fish_mort_comp(par_t& dfparam, d3_array& dff_mort,
+                              d3_array& effort, year_month& dfdate)
+{
+
+  for (int f = nfleet; f >=1;  f--)
+  {
+    //f_mort(f) = q(f)*effort(f);
+    dfparam.q(f) += sum( elem_prod(effort(f), dff_mort(f)) );
+    dff_mort(f).initialize();
+  }
+}
+
+#endif

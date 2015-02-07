@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN" "/usr/share/sgml/docarticle/xml-dtd-4.4-1.0-26/docarticlex.dtd">
+<article>
+  <articleinfo>
+    <title>Tagest</title>
+    <pubdate>Revision: $Id: movemod.xml 2758 2011-01-10 23:50:45Z jsibert $</pubdate>
+    <author>
+      <firstname>Johnoel</firstname>
+      <surname>Ancheta</surname>
+      <affiliation>
+        <orgname>Pelagic Fisheries Research Program</orgname>
+        <address><email>johnoel.ancheta@hawaii.edu</email></address>
+    <informalfigure>
+      <graphic fileref="small_tuna.gif"/>
+    </informalfigure>
+      </affiliation>
+    </author>
+    <abstract>
+      <para>Job list for developing movemod applications.</para>
+    </abstract>
+  </articleinfo>
+  <section id="Introduction">
+    <title>Introduction</title>
+  <section id="Tagest">
+    <title>Tagest Estimator</title>
+    <para>description</para>
+  </section>
+  <section id="Tagmove">
+    <title>Tagmove Simulator</title>
+    <para>description</para>
+  </section>
+  </section>
+  <section id="Usage">
+    <title>Usage</title>
+    <para>description</para>
+  <section id="Workflow">
+    <title>Workflow</title>
+    <para>
+	<orderedlist>
+      <listitem>
+        <para>Raw Effort and Tag Release/Recapture Data, currently rttp and ssapavailable.</para>
+      </listitem>
+      <listitem>
+        <para>Create subfolder for intermediate data. ie grid10 grid16</para>
+        <para>file_nam.dat: describe structure</para>
+        <para>filename: root filename</para>
+        <para>fleets: describe structure</para>
+        <para>dates: describe structure</para>
+        <para>.prn: input file that provides grid and time information</para>
+<screen>
+<command>$ makeifr</command>
+</screen>
+        <para>produces .ifr</para>
+<screen>
+<command>$ makepar</command>
+</screen>
+        <para>produces .p00</para>
+        <para>produces .tag</para>
+        <para>both commands may modify .pos</para>
+      </listitem>
+      <listitem>
+        <para>next create another sub directory ie 1</para>
+        <para>file_nam.tmp:</para>
+        <para>copy .p00 to new subdirectory and give extension .par</para>
+<screen>
+<command>$ tagest</command>
+</screen>
+        <para>output .p01</para>
+<screen>
+<command>$ tagmove</command>
+</screen>
+        <para>output .tag</para>
+      </listitem>
+	</orderedlist>
+    </para>
+  </section>
+  </section>
+  
+<!--
+  <section id="Goals">
+    <title>Goals: Job List</title>
+    <itemizedlist>
+      <listitem>
+        <para>[Done]: Tagest tpl works for both regional and neural_net.</para>
+      </listitem>
+      <listitem>
+        <para>[Done]: Simulator works for both regional and neural_net.</para>
+      </listitem>
+      <listitem>
+        <para>[Done]: Preprocessor make_par works.</para>
+      </listitem>
+      <listitem>
+        <para>[Done]: Preprocessor make_ifr works.</para>
+      </listitem>
+    </itemizedlist>
+  <section id="0">
+    <title>Compare Models</title>
+    <para>Compare Regional, Neural Net and Seapodym Models for SSAP and RTTP data</para>
+    <orderedlist>
+      <listitem>
+        <para>get grid16 rttp</para>
+      </listitem>
+      <listitem>
+        <para>get grid16 ssap</para>
+      </listitem>
+      <listitem>
+        <para>turn on natural motality, fleet fishing mortality(q), u, v, sigma in tpl tagest par file</para>
+      </listitem>
+      <listitem>
+        <para>create nohup job script</para>
+      </listitem>
+      <listitem>
+        <para>run tpl tagest regional grid16 SSAP get natural motality, fleet fishing mortality, u, v, sigma</para>
+      </listitem>
+      <listitem>
+        <para>run tpl tagest regional grid16 RTTP get natural motality, fleet fishing mortality, u, v, sigma</para>
+      </listitem>
+      <listitem>
+        <para>run tpl tagest neural net grid16 SSAP get natural motality, fleet fishing mortality, u, v, sigma</para>
+      </listitem>
+      <listitem>
+        <para>run tpl tagest neural net grid16 RTTP get natural motality, fleet fishing mortality, u, v, sigma</para>
+      </listitem>
+      <listitem>
+        <para>get seapodym grid16 SSAP natural motality, fleet fishing mortality, u, v, sigma</para>
+      </listitem>
+      <listitem>
+        <para>get seapodym grid16 RTTP natural motality, fleet fishing mortality, u, v, sigma</para>
+      </listitem>
+      <listitem>
+        <para>make a table<ulink url="http://www.soest.hawaii.edu/PFRP/reprints/mobility.pdf"> page 90</ulink> as part of tagest output have it generate a xml file which can be updated by tagest and seapodym
+<screen>
+&lt;movemod ngrid="16" nseason="2"&gt;
+  &lt;run path="rttp/grid16/test"&gt;
+    &lt;m value=""/&gt;
+    &lt;q fleet="" value=""/&gt;
+    &lt;u grid="" season="" value=""/&gt;
+    &lt;v grid="" season="" value=""/&gt;
+    &lt;sigma grid="" season="" value=""/&gt;
+  &lt;/run&gt;
+&lt;/movemod&gt;
+</screen>
+</para>
+      </listitem>
+    </orderedlist>
+  </section>
+  <section id="1">
+    <title>DYMData</title>
+    <para>Implement Dym Data Structure Reader/Writer for tagest.</para>
+	<orderedlist>
+      <listitem>
+        <para>Start with Seapodym CReadWrite class.</para>
+      </listitem>
+      <listitem>
+        <para>Rename class CReadWrite to DymData</para>
+      </listitem>
+      <listitem>
+        <para>Remove unneeded stuff.</para>
+      </listitem>
+      <listitem>
+        <para>Do TDD.</para>
+	<itemizedlist>
+      <listitem>
+        <para>Check it can handle unable to read or write.</para>
+      </listitem>
+      <listitem>
+        <para>Check read and write routines generate same file using md5sums.</para>
+      </listitem>
+      <listitem>
+        <para>Check it can handle corrupt, incorrect DYM version, or incorrect dym2 format.</para>
+      </listitem>
+      <listitem>
+        <para>Check input values are correct.</para>
+      </listitem>
+	</itemizedlist>
+      </listitem>
+	</orderedlist>
+  </section>
+  </section>
+  <section id="Issues: to do list">
+    <title>Issues: to do list</title>
+      <section id="issue0">
+        <title>Issue0[CLOSED]</title>
+        <para>Issue: add executable string to header of outputed par file
+<screen>
+$ <command>head -n 4 output.pXX</command>
+#v20r
+# output.pXX
+# ~/bin/tagest
+#
+</screen>
+</para>
+        <para>Type: Enhancement</para>
+        <para>Priority: Medium</para>
+        <para>Begin date: June 4, 2007</para>
+        <para>End date: June 14, 2007</para>
+        <para>Notes: June 13, 2007: when calling par_t::savefit output the path and exectable from PathFileParser. call model_area::setPathName(argv[0]) in tagestXX.</para>
+        <para>Notes: June 14, 2007: just store exectuble string in par_t::executable, then output string in par_t::savefit commited revision 1859</para>
+      </section>
+      <section id="issue1">
+        <title>Issue1[CLOSED]</title>
+        <para>Issue: grid10 hardcoded for neural net functions</para>
+        <para>Type: Bug</para>
+        <para>Priority: High</para>
+        <para>Begin date: June 14, 2007</para>
+        <para>End date: June 14, 2007</para>
+        <para>Notes: June 14, 2007 from john's email
+<literallayout>
+But I have run into a problem with the nn formulation
+(n-fit directory). It looks like "grid10" is hard coded into some of the
+input routines. The error  report is in n-fit/tagest.out
+
+Finished reading '../skj10.ifr'
+Parameters saved to skj10.ppp
+Made Centered_coff_t
+File ../grid10.sst not found in directory.
+bailing out in src/par_t_nn.cpp line: 209
+</literallayout>
+just remove hard coded stuff.  how does the neural net data files get generated?
+just use par_t::pathname for root name. Committed revision 1863.
+</para>
+      </section>
+      <section id="issue2">
+        <title>Issue2[]</title>
+        <para>Issue: how to generate the neural net data files ? look at neural_net data generator in nn_makedata.cpp.</para>
+        <para>Type: Problem</para>
+        <para>Priority: High</para>
+        <para>Begin date: June 14, 2007</para>
+        <para>End date:</para>
+        <para>Notes: </para>
+      </section>
+  </section>
+-->
+  <section id="Compiling Requirements">
+    <title>Compiling Requirements</title>
+      <itemizedlist>
+        <listitem>
+          <para>gcc-3.4.x as the standard compiler.</para>
+        </listitem>
+        <listitem>
+          <para>Admodel <ulink url="http://www.otter-rsch.com/">admb-gcc-344</ulink> library</para>
+        </listitem>
+        <listitem>
+          <para>Unit Testing <ulink url="http://sourceforge.net/projects/cppunit/">cppunit-1.12.0</ulink> library</para>
+        </listitem>
+        <listitem>
+          <para>Logging <ulink url="http://logging.apache.org/log4cxx/">log4cxx</ulink> library</para>
+        </listitem>
+      </itemizedlist>
+  </section>
+  <section id="Testing Requirements">
+    <title>Testing Requirements</title>
+    <itemizedlist>
+      <listitem>
+        <para>
+do unit tests all should be OK
+<screen>
+$ <command>make check</command>
+</screen>
+</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+  <section id="Coding Guidelines">
+    <title>Coding Guidelines</title>
+    <itemizedlist>
+      <listitem>
+      <para>Use astyle to automate code formatting.</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+</article>

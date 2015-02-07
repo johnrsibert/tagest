@@ -1,0 +1,70 @@
+#!/bin/bash
+REGION=-R110/215/-30/20
+#REGION=-R110/200/-25/20
+#REGION=-R130/170/-15/10
+echo $REGION
+PROJECTION=-JM6i
+echo $PROJECTION
+BB=-B20g5/10g5
+echo $BB
+MAP=gendomain
+echo $MAP
+EPS=$MAP.eps
+echo $EPS
+rm -v $EPS
+rm -v $MAP.png
+
+EEZ_COLOR=1P/0/0/255
+WET_COLOR=194/241/253
+DRY_COLOR=237/214/151
+SHORELINE=154/139/98
+REG_COLOR=0/128/0
+DOM_COLOR=$REG_COLOR
+
+
+gmtset ANOT_FONT_SIZE_PRIMARY 12 BASEMAP_TYPE fancy PAPER_MEDIA letter+ PAGE_ORIENTATION portrait HEADER_FONT_SIZE 16 HEADER_FONT 1 MEASURE_UNIT inch PLOT_DEGREE_FORMAT dddF
+
+REG=pttp
+echo $REG
+# draw fancy base map with messy 1 deg grid
+psbasemap $BB:."RTTP & PTTP":WSNE $REGION $PROJECTION -V    -K > $EPS
+#draw coastlines with wet and dry areas filled
+pscoast $REGION $PROJECTION -Di -G$DRY_COLOR -W$SHORELINE -V -O -K >> $EPS
+
+
+#draw region boundaries
+psxy $REG"_regions.dat"  $REGION $PROJECTION -Ap -M -W1p/$REG_COLOR -V -O -K >> $EPS
+
+#draw landmask
+psxy $REG"_landmask.dat" $REGION $PROJECTION -Sc0.03125i -G$SHORELINE -V -O -K >> $EPS
+
+# draw region numbers 
+pstext $REG"_region_numbers.dat" $REGION $PROJECTION  -G$REG_COLOR -V -O -K >> $EPS
+
+#draw domain boundary
+psxy $REG"_domain.dat"  $REGION $PROJECTION -Ap -M -W3p/$REG_COLOR -V -O -K >> $EPS
+
+REG=ssap
+echo $REG
+# draw fancy base map with messy 1 deg grid
+psbasemap $BB:."SSAP":WSNE $REGION $PROJECTION -V -O -K -Y4.25i >> $EPS
+#draw coastlines with wet and dry areas filled
+pscoast $REGION $PROJECTION -Di -G$DRY_COLOR -W$SHORELINE -V -O -K >> $EPS
+
+#draw region boundaries
+psxy $REG"_regions.dat"  $REGION $PROJECTION -Ap -M -W1p/$REG_COLOR -V -O -K >> $EPS
+
+#draw landmask
+psxy $REG"_landmask.dat" $REGION $PROJECTION -Sc0.03125i -G$SHORELINE -V -O -K >> $EPS
+
+# draw region numbers 
+pstext $REG"_region_numbers.dat" $REGION $PROJECTION  -G$REG_COLOR -V -O -K >> $EPS
+
+#draw domain boundary
+psxy $REG"_domain.dat"  $REGION $PROJECTION -Ap -M -W3p/$REG_COLOR -V -O    >> $EPS
+
+
+#rm .gmt*
+gv $EPS &
+ps2raster -V -A -Tg -E300 $EPS
+eog $MAP.png &

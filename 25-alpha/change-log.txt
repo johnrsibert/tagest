@@ -1,0 +1,58 @@
+New alpha test directory:
+/home/jsibert/Projects/SPC-Tagging/SPC2012/pttp/OneDegree/nominal/Grid23/alpha
+apply devs to reporting rate / catchability
+apparent lack of fit in history plot due to misunderstanding of fleet 0
+
+rename alpha test directory reporting_dev_alpha
+
+New alpha test directory
+
+need to compute recap d3_array to count recap strata
+
+Fleet 0 codes fleets not included in the par file
+
+
+Attemp to estimate fmort(f) from average_F(f) inverse of comput_average_fishing_mortality
+
+====================
+/home/jsibert/PTTP2012/OneDegree/nominal/Grid23/fish_mort_alpha
+using effort proxy, but perhaps the wrong observed tags in the likelihood. see history and attrition plots
+
+Two new issues:
+
+1) sums of observed recaptures too high
+confusion about f=0 between effortless recaptures and sum of recaptures
+f=0 => effortless recaptures obs0
+
+2) quiltmap recaps do not extend to 208E
+need to use slicemin()  and slicemax() for i and so on
+
+Current ceill-based proxy TOO small.
+
+Two types of effortless tag returns:
+1) error in recording; data error
+2) fleet not included in par file, because ie less than 100 returns
+
+adding eflag recaps to fleet(0)
+
+check effort averaging and number of fleets in allskj.ifr
+
+problem with q was faulty initialization around line 604 in tpl
+need to rethink ipar(25)
+
+not enough obs in attr and hist files
+needed += in vector accumulators
+1G
+changed name of alpha to recapture_dev
+
+good results M still too high, but good agreement between predicted and all recaptures
+
+Too many fish in the model - try release devs
+
+============================
+Aug 8 2014
+/home/jsibert/PTTP2012/OneDegree/nominal/Grid23/tag_surv_prop
+
+Good initial fit (p001), but M -> 0 
+
+Need to compare likelihood fish_mort_alpha p008

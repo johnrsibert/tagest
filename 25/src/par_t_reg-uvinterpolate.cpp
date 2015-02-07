@@ -1,0 +1,98 @@
+//$Id: par_t_reg-uvinterpolate.cpp 2754 2011-01-02 20:57:07Z jsibert $
+#include "par_t_reg.h"
+extern ofstream clogf;
+
+template <typename D3_ARRAY, typename MATRIX, typename VECTOR, typename DOUBLE>
+void par_t_reg<D3_ARRAY,MATRIX,VECTOR,DOUBLE>::uvinterpolate(dvar_matrix &uSeasonGrid, dvar_matrix &vSeasonGrid, dvar_matrix& u, dvar_matrix& v, const int season)
+{
+	int npoint = m_ipar[35];
+	if (npoint <= 1) {
+		uvcomp(uSeasonGrid, vSeasonGrid, u, v, season);
+		return;
+	}
+	int _m = get_m();
+	int _n = get_n();
+	if (npoint > _m || npoint > _n) {
+		cerr << "You can't do a " << npoint <<" moving average interpolation";
+		cerr << "  on a " << _m << "x" << _n << " grid." << endl;
+		clogf << "You can't do a " << npoint <<" moving average interpolation";
+		clogf << "  on a " << _m << "x" << _n << " grid." << endl;
+		exit(1);
+	}
+	int np2 = npoint/2;
+	if (2*np2 == npoint) {
+		cerr << "The number of points in the moving average interpolation must be odd." << endl;
+		cerr << "You have " << npoint << endl;
+		clogf << "The number of points in the moving average interpolation must be odd." << endl;
+		clogf << "You have " << npoint << endl;
+		exit(1);
+	}
+	np2++;
+
+	const double rnpoint  = 1.0/(double)npoint;
+
+	dvar_matrix uu(1,_m,1,_n);
+	dvar_matrix vv(1,_m,1,_n);
+	uu.initialize();
+	vv.initialize();
+	uvcomp(uSeasonGrid, vSeasonGrid, uu, vv, season); // expand regions
+
+	imatrix& _cell_type=get_cell_type();
+	ivector& _ilb = get_ilb();
+	ivector& _iub = get_iub();
+	ivector& _jlb = get_jlb();
+	ivector& _jub = get_jub();
+
+	bound boundary;
+	// do moving average
+	for (int j = 1; j <= _n; j++) {
+		const int imin = _ilb(j);
+		const int imax = _iub(j);
+		int iadd = imin + np2 - 2; //np2-1;
+		int isub = imin - np2; //1-np2;
+		dvariable xsum = uu(imin,j);
+		for (int i = imin; i <= imax; i++) {
+			boundary = _cell_type[i][j];
+			iadd++;
+			isub++;
+			if (iadd <= imax) {
+				xsum += uu(iadd,j);
+			}
+			if (j >= _jlb(i) && j <= _jub(i)) {
+				u[i][j] = xsum * rnpoint;
+			}
+			if (isub >= imin) {
+				xsum -= uu[isub][j];
+			}
+		}
+	}
+	for (int i = 1; i <= _m; i++) {
+		const int jmin = _jlb(i);
+		const int jmax = _jub(i);
+		int jadd = jmin+np2-2; //np2-1;
+		int jsub = jmin-np2; //1-np2;
+		dvariable ysum = vv(i,jmin);
+		for (int j = jmin; j <= jmax; j++) {
+			boundary = _cell_type[i][j];
+			jadd++;
+			jsub++;
+			if (jadd <= jmax) {
+				ysum += vv(i,jadd);
+			}
+			if (i >= _ilb(j) && i <= _iub(j)) {
+				v[i][j] =  ysum * rnpoint;
+			}
+			if (jsub > jmin) {
+				ysum -= vv[i][jsub];
+			}
+		}
+	}
+	for (int i = 1; i <= _m; i++) {
+		const int j1 = _jlb(i);
+		const int jn = _jub(i);
+		u[i][j1-1] = u[i][j1];
+		u[i][jn+1] = u[i][jn];
+		v[i][j1-1] = v[i][j1];
+		v[i][jn+1] = v[i][jn];
+	}
+}

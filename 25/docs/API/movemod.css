@@ -1,0 +1,9 @@
+.screen {
+background-color: lightgray;
+border: 1px solid darkgray;
+}
+.informalfigure {
+position: absolute;
+top: 50px;
+left: 270px;
+}

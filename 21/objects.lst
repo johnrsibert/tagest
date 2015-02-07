@@ -1,0 +1,216 @@
+LIBMOVEMOD_OBJECTS = \
+adi.obj  \
+adstring_utils.obj \
+b_adjst2.obj  \
+banner.obj  \
+boundfn3.obj  \
+capture4.obj \
+coff_t.obj  \
+coffcmp6.obj  \
+coh_clps.obj \
+coh_reld.obj  \
+dcofcmp6.obj  \
+dfadi.obj  \
+dfb_adj2.obj  \
+dfexplike.obj \
+dfgammln.obj \
+dfnblike2.obj \
+dfpoislk.obj  \
+dfloop1.obj \
+dfreset3.obj  \
+dfsfabs.obj  \
+dfsigcmp.obj  \
+dfsigntr.obj  \
+dfsigpen.obj  \
+dftridag.obj  \
+dfuvcomp.obj  \
+dfuvntr4.obj  \
+dfuvs2.obj  \
+dfvelpen.obj  \
+displace2.obj \
+eff_norm.obj \
+efrtfile.obj \
+explike.obj \
+ext_numb.obj  \
+factorl.obj  \
+fish_rc2.obj  \
+fish_rc3.obj  \
+fish_rc4.obj  \
+fish_rec.obj  \
+fmortq.obj  \
+gammln.obj \
+geo_cord.obj  \
+get_efrt.obj  \
+getretrn.obj  \
+intersav.obj  \
+inside.obj \
+ipar.obj  \
+ipar_io.obj  \
+iparname.obj  \
+latitude.obj  \
+longlat.obj  \
+longtude.obj  \
+make_d3a.obj  \
+mat_avg.obj  \
+modlarea.obj  \
+mparead.obj  \
+mymanip.obj \
+nblike2.obj \
+negtagpe.obj  \
+nvarcalc.obj  \
+obs_caps.obj \
+par_seas.obj  \
+par_t.obj  \
+partreg.obj  \
+pathpars.obj \
+poisdev.obj \
+poisslk.obj  \
+position.obj  \
+pparead.obj  \
+prd_cap2.obj  \
+prnstrem.obj \
+psavefit.obj  \
+ran1.obj \
+readcaps.obj  \
+recap_io.obj  \
+recap_t.obj  \
+reset3.obj  \
+resid_comp.obj \
+reverse.obj  \
+rparead.obj  \
+rsavefit.obj  \
+ruvscomp.obj  \
+savetags.obj \
+setvbnds.obj  \
+shift.obj  \
+shiftpos.obj  \
+sigcomp.obj  \
+sigintrp.obj \
+sigpen.obj  \
+slicesum.obj \
+smoother.obj  \
+tagrelio.obj  \
+totl_chk.obj \
+tottagpn.obj  \
+tridag.obj  \
+uvcomp.obj  \
+uvintrp4.obj  \
+uvsread.obj  \
+velpen.obj  \
+wrap_num.obj  \
+xinit3.obj  \
+xypair.obj  \
+yr_mon2.obj  \
+yrmonvec.obj \
+zmortcmp.obj
+
+
+RTAGEST_OBJECTS = \
+tagest14.obj \
+fmm_disp.obj  \
+rfgcomp.obj
+
+RTAGMOVE_OBJECTS = \
+tagmove15.obj \
+fgsim10.obj \
+jrtagmove.obj
+
+EXE_RTAGMOVE_OBJECTS = \
+exe_tagmove15.obj \
+fgsim10.obj
+
+PATTDISP_OBJECTS = \
+pattdsp8.obj
+
+MAKEMAP_OBJECTS = \
+etopo5.obj \
+gridmap.obj \
+make_map.obj
+ 
+MAKEIFR_OBJECTS = \
+ch_type.obj \
+effproc.obj \
+fish_rc2.obj \
+imax.obj \
+inside.obj \
+makeifr.obj \
+nearby.obj \
+pareof.obj \
+parproc3.obj \
+mpar.obj \
+ppar.obj \
+recap_ck3.obj \
+recap_t2.obj \
+rec_sort.obj \
+record3.obj \
+recpmang3.obj \
+relpmang3.obj \
+rpar.obj \
+rpreproc_main.obj \
+shift.obj \
+shiftpos.obj \
+wrtag.obj
+
+MAKEPAR_OBJECTS = \
+MakePar.obj \
+ch_type.obj \
+effproc.obj \
+fish_rc2.obj \
+imax.obj \
+inside.obj \
+mpar.obj \
+nearby.obj \
+pareof.obj \
+parproc3.obj \
+ppar.obj \
+recap_ck3.obj \
+recap_io.obj \
+recap_t2.obj \
+record3.obj \
+recpmang3.obj \
+rec_sort.obj \
+relpmang3.obj \
+rpar.obj \
+rpreproc_main.obj \
+shift.obj \
+shiftpos.obj \
+wrtag.obj
+  
+FIT_TAB_OBJECTS = \
+fit_tab.obj \
+xi_noscl.obj
+
+RTAC_OBJECTS = \
+tac.obj \
+displace2.obj
+
+COVAR_OBJECTS = \
+covar.obj \
+extra_s.obj \
+hesscmp2.obj \
+rfgcomp.obj
+
+WORMWALK_OBJECTS = \
+tag_pack3.obj \
+walk2.obj \
+walkproc3.obj
+#wormwalk.obj
+
+
+GIS_FILES_OBJECTS = \
+gis_files.obj
+
+POPSIM_OBJECTS = \
+fgpop4.obj \
+gcomp.obj \
+policy.obj \
+popsim.obj
+
+HALFLIFE_OBJECTS = \
+halfproc.obj \
+halfmain.obj \
+halfcomp.obj \
+ifr_avrg.obj \
+ifr_tab.obj \
+fish_rc2.obj \
+halflife.obj

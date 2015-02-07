@@ -1,0 +1,307 @@
+#include "par_treg.h"
+#include "precomp.h"
+#include "intersav.h"
+#include "fish_rec.h"
+#include <iomanip.h>
+#include "trace.h"
+
+#ifdef __GNUC__
+#include <iostream.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#endif
+
+#ifdef __SUN__
+#include <unistd.h>
+#include <fcntl.h>
+#endif
+
+
+#if !defined(__SUN__) && !defined(__GNUC__)
+#include <io.h>
+#include <fcntl.h>
+#include <sys\stat.h>
+#endif
+
+void velpen(par_t_reg& param, double& temp, year_month& date);
+void dfvelpen(par_t_reg& dfparam, par_t_reg& param, year_month& date);
+void sigpen(par_t_reg& param, double& temp, year_month& date);
+void dfsigpen(par_t_reg& dfparam, par_t_reg& param, year_month& date);
+
+void total_tag_penalty(dmatrix& tags, par_t& param, double& pen);
+void df_total_tag_penalty(dmatrix& tags, dmatrix& dftags, par_t& param,
+       double& dfpen);
+
+void negative_tag_penalty(dmatrix& tags, par_t& param, double& pen,
+       int& negatives);
+void df_negative_tag_penalty(dmatrix& tags, dmatrix& dftags, par_t& param,
+       double& dfpen);
+
+void df_poisson_like(double& dflike, dmatrix& pred_tags, dmatrix& dfpred_tags,
+       year_month& date, int cohort,
+       recaptype_vector& recaps, int nrec, par_t& param, par_t& dfparam,
+       dmatrix& z, dmatrix& dfz,
+       ivector& effort_occured, d3_array& fmort, d3_array& dffmort);
+
+void poisson_like(double& like, dmatrix& pred_tags, year_month& date,
+       int cohort, recaptype_vector& recaps, int nrec, par_t& param,
+       dmatrix& z, ivector& effort_occured, d3_array& fmort);
+
+
+void sigpen(par_t_reg& param, double& temp, year_month& date);
+void dfsigpen(par_t_reg& dfparam, par_t_reg& param, year_month& date);
+
+d3_array make_d3_array(int sl,int sh, int nrl, int nrh, const ivector& ncl,
+           const ivector& nch);
+
+void clean(dvector& g, int nvar, par_t_reg& pdfpar, coff_t& dfcoff,
+       dmatrix& dfrelease,d3_array& dfz, double& plike);
+
+void get_effort_array(par_t& param, indexed_regional_fishery_record& irfr,
+       d3_array& effort, year_month& date,
+       ivector& effort_occured);
+
+void dftotal_mort_comp(par_t& param, par_t& dfparam, d3_array& f_mort,
+       d3_array& dff_mort, dmatrix& dfz);
+
+//void df_fish_mort_comp(par_t& dfparam, d3_array& dff_mort, d3_array& effort);
+
+void reverse(double& like, dvector& g, int nvar);
+
+extern int _global_report_flag;     //Set in main(); 0 while in fmin loop else 1
+extern setsaveinterflag interflag;
+extern intersavetype * isp;
+extern ofstream clogf;
+
+void par_t_reg::fgcomp(double& plike, dvector& x, dvector& g, int _nvar,
+       recaptype_vector& recaps, int nrec,
+       coff_t& coff, coff_t& dfcoff,
+       indexed_regional_fishery_record& irfr)
+{
+  int   i, j, cohort;
+
+  //clogf.setf(ios::fixed);
+
+  clock_t time1 = clock();
+
+  par_t_reg dfparam(*this); // members set to 0 in copy constructor
+
+
+  //d3_array effort = make_d3_array(1, nfleet, 1,m, jlb, jub);
+  //d3_array fish_mort = make_d3_array(1, nfleet, 1,m, jlb, jub);
+  //d3_array dffish_mort = make_d3_array(1, nfleet, 1,m, jlb, jub);
+  //dffish_mort.initialize();
+  imatrix jlbm(1,nfleet,1,m);
+  imatrix jubm(1,nfleet,1,m);
+  ivector ilbv(1,nfleet);
+  ivector iubv(1,nfleet);
+  for (int s = 1; s <= nfleet; s++)
+  {
+    ilbv(s) = 1;
+    iubv(s) = m;
+    //jlbm(s) = jlb;
+    //jubm(s) = jub;
+    for (int i = 1; i <= m; i++)
+    {
+      jlbm(s,i) = jlb(i);
+      jubm(s,i) = jub(i);
+    } //end_for
+  } //end_for
+  d3_array effort(1, nfleet, ilbv, iubv, jlbm, jubm);
+  d3_array fish_mort(1, nfleet, ilbv, iubv, jlbm, jubm);
+  d3_array dffish_mort(1, nfleet, ilbv, iubv, jlbm, jubm);
+  dffish_mort.initialize();
+
+
+  dmatrix tot_mort(1,m, jlb, jub);     //tot_mort.initialize();
+  dmatrix dftot_mort(1,m, jlb, jub); dftot_mort.initialize();
+  //Tags
+  dmatrix release(1,m, jlb, jub); release.initialize();
+  dmatrix dfrelease(1, m, jlb, jub); dfrelease.initialize();
+
+
+  ivector effort_occured(1, nfleet); effort_occured.initialize();
+
+#if !defined(__SUN__) && !defined(__GNUC__)
+  if ( ( isp->savefile = open(isp->savefilename, O_RDWR|O_CREAT|O_BINARY,S_IREAD|S_IWRITE) ) < 0)
+#else
+#if defined ( __SUN__) ||  defined ( __GNUC__)
+  if ( ( isp->savefile = open(isp->savefilename, O_RDWR | O_CREAT | O_TRUNC , 0660) ) < 0)
+  //if ( ( isp->savefile = open(isp->savefilename, O_RDWR | O_CREAT | O_TRUNC , 0777) ) < 0)
+#else
+  if ( ( isp->savefile = creat(isp->savefilename, O_RDWR) ) < 0)
+#endif
+#endif
+  {
+    cerr <<"Cannot open " << isp->savefilename <<" for output.\n";
+    exit(1);
+  }
+
+  plike = 0.0;
+  fpen = 0.0;
+  total_uv_penalty = 0;
+  total_sigma_penalty = 0;
+  total_negative_tag_penalty = 0;
+  total_total_tag_penalty = 0 ;
+  total_bounds_penalty = 0;
+
+  //set usergrid, mort, q
+  reset(x);
+  plike -= fpen;
+  total_bounds_penalty += fpen;
+
+  int ncohort = nrelease;
+
+
+  int pool_tags = m_ipar[13];
+  int omit_release_month = 0;
+  if (m_ipar[14])
+  {
+    cerr << "Omit release month option (flag 14) not currently supported." << endl;
+    exit(1);
+  } //end_if
+  int last_rn = 0;
+  int c1 = 1;
+  int c2 = ncohort;
+
+  if (pool_tags == 1)
+  {
+    cohort = 0;
+    c2 = 1;
+  } //end_if
+  else if (pool_tags == 2)
+  {
+    last_rn = 0;
+    c1 = 1;
+    c2 = ncohort;
+    //TTRACE(c1,c2)
+  } //end_if
+
+  //Use a macro for cleaner code
+  ivector jlb1(0,m+1);
+  ivector jub1(0,m+1);
+  for (i = 1; i <= m; i++)
+  {
+    jlb1(i) = jlb(i) - 1;
+    jub1(i) = jub(i) + 1;
+  } //end_for
+  jlb1(0) = 0;
+  jlb1(m+1) = 0;
+  jub1(0) = n+1;
+  jub1(m+1) = n+1;
+
+  dmatrix u(0, m+1, jlb1, jub1);       //u.initialize();
+  dmatrix v(0, m+1, jlb1, jub1);       //v.initialize();
+  dmatrix sigma(0, m+1, jlb1, jub1);   //sigma.initialize();
+
+  dmatrix df_u(0, m+1, jlb1, jub1); df_u.initialize();
+  dmatrix df_v(0, m+1, jlb1, jub1); df_v.initialize();
+  dmatrix df_sigma(0, m+1, jlb1, jub1); df_sigma.initialize();
+
+
+  year_month date;
+  year_month local_start_date = start_date;//TRACE(local_start_date)
+  year_month final_date = get_tr_date(nrelease) + nmonth;//TRACE(final_date)
+
+    double dfplike = 1.0;
+    double dfneg_tag_pen = 0.0;
+    double dftot_tag_pen = 0.0;
+    dfcoff.clean();
+    g.initialize();
+
+  for (int cc = c1; cc <= c2; cc++)
+  {
+    interflag.isp_reset();
+    int kmonth = 0;
+    //clogf << "---------- starting forward loop ----------" << endl;
+    for (date = local_start_date; date <= final_date; date++)
+    {
+      kmonth ++;
+      /*
+      get_effort_array(*this, irfr, effort, date, effort_occured);
+      fish_mort_comp(fish_mort, effort, date);
+      //total_mort_comp(fish_mort, tot_mort);
+      for (int ff = 1; ff <= nfleet; ff++)
+      {
+        plike -= 0.001*norm2((fish_mort(ff)-0.1));
+      } 
+      */
+      //plike += norm2(tot_mort);
+     
+      plike -= (mort-0.1)*(mort-0.1);
+      for (int ff = 1; ff <= nfleet; ff++)
+      {
+        plike -= (q(ff)-0.1)*(q(ff)-0.1);
+      }
+    
+
+   }//End of forward month loop
+
+    interflag.iclose(isp);
+    /*
+    double dfplike = 1.0;
+    double dfneg_tag_pen = 0.0;
+    double dftot_tag_pen = 0.0;
+    dfcoff.clean();
+    g.initialize();
+    */
+
+    //clogf << "\n---------- starting reverse loop ----------" << endl;
+
+    for (date = final_date; date >= local_start_date; date--)
+    {
+
+      for (int ff = nfleet; ff >= 1; ff--)
+      {
+        //plike -= (q(ff)-0.1)*(q(ff)-0.1);
+        dfparam.q(ff) -= 2.0*(q(ff)-0.1)*dfplike;
+      }
+      //plike -= (mort-0.1)*(mort-0.1);
+      dfparam.mort -= 2.0*(mort-0.1)*dfplike;
+
+      /*
+      get_effort_array(*this, irfr, effort, date, effort_occured);
+      fish_mort_comp(fish_mort, effort, date);
+      //total_mort_comp(fish_mort, tot_mort);
+
+      //plike += norm2(tot_mort);
+      //dftot_mort += 2.0*tot_mort*dfplike;
+
+      for (int ff = nfleet; ff >= 1; ff--)
+      {
+        //plike -= 0.001*norm2((fish_mort(ff)-0.1));
+        dffish_mort(ff) -= 0.001*2.0*(fish_mort(ff)-0.1)*dfplike; 
+      }
+
+      //total_mort_comp(fish_mort, tot_mort);
+      //dftotal_mort_comp(*this, dfparam, fish_mort, dffish_mort, dftot_mort);
+
+      //fish_mort_comp(fish_mort, effort, date);
+      df_fish_mort_comp(dfparam, dffish_mort, effort, date);
+      */
+ 
+      kmonth --;
+      //TTRACE(kmonth,date)
+    } //End reverse month loop
+
+  } //for (int cc = c1; cc <= c2; cc++)
+  //End of cohort loop
+
+  cout << q << endl;
+
+  dfparam.dfreset(g, x);
+  reverse(plike, g, _nvar);
+
+  close(isp->savefile);
+
+  time_t time_sec;
+  time(&time_sec);
+  clock_t time2 = clock();
+  double elapsed_time = (double)(time2-time1)/CLOCKS_PER_SEC;
+  clogf << "Objective function value = " << setprecision(8) << plike
+        << "; elapsed time = " << setprecision(3) << elapsed_time 
+        << " seconds." << endl;
+}//End of fgcomp
+

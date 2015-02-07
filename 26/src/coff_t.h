@@ -1,0 +1,307 @@
+//$Id: coff_t.h 2754 2011-01-02 20:57:07Z jsibert $
+#ifndef __COFF_T_H__
+#define __COFF_T_H__
+#include <fvar.hpp>
+#include "par_t.h"
+#include "yr_mon2.h"
+//#include "intersav.h"
+#include "bound.h"
+/** Manipulation of tridiagonal coefficients for use by adi solver.
+A virtual base class with specializations for upwind and centered finite
+difference approximations. Uses s to produce overloads
+for both constant and variable ADMB types. 
+*/
+  
+class coff_t  
+{
+ public:
+   static coff_t  *instance;
+   static coff_t  *dfinstance;
+   static coff_t  * 
+     createInstance(const par_t  &param);
+   static coff_t  *
+     createDfInstance(const par_t  &param);
+   static void deleteInstance()
+   {
+      if (instance != 0)
+      {
+	 delete instance;
+	 instance = 0;
+      }
+      if (dfinstance != 0)
+      {
+	 delete dfinstance;
+	 dfinstance = 0;
+      }
+   }
+
+
+ public:
+   coff_t(Model_area & param, int ipar6);
+   coff_t(coff_t & t);
+   virtual ~ coff_t() {;}
+
+ public:
+   virtual void comp(par_t  &param,
+		     const dvar_matrix & u, const dvar_matrix & v,
+		     const dvar_matrix & sigma) = 0;
+
+   virtual dvariable atype(const dvariable um, const dvariable bsig,
+			const int boundary) = 0;
+   virtual dvariable btype(const dvariable _uu, const dvariable bsig,
+			const dvariable fsig, const double dt,
+			const int boundary) = 0;
+   virtual dvariable ctype(const dvariable up, const dvariable fsig,
+			const int boundary) = 0;
+
+   void b_adjust(const par_t  &param,
+		 const dvar_matrix & z);
+   void dfb_adjust(coff_t & coff, par_t  &param, 
+                    par_t &dfparam, dmatrix & z);
+   void dfb_adjust(par_t  &param,
+		   dmatrix & dfz, dmatrix & a, dmatrix & b, dmatrix & c,
+		   dmatrix & xbet, dmatrix & xgam, dmatrix & dfa,
+		   dmatrix & dfraw_b, dmatrix & dfb, dmatrix & dfc,
+		   dmatrix & dfxbet, dmatrix & dfxgam);
+
+
+   void adi(dvar_matrix& u); //, intersavetype * savefile);
+   void dfadi(coff_t & coff, dmatrix & u, dmatrix & dfu); //, intersavetype * savefile);
+   void adiADMBIntersave(dvar_matrix& u, const dmatrix& psi);
+   void adiADMBIntersave(dmatrix& u, const dmatrix& psi);
+
+   friend void bogus_dfadi(void);
+   void dfadi(dmatrix & a, dmatrix & dfa,
+	      dmatrix & b, dmatrix & dfb,
+	      dmatrix & c, dmatrix & dfc,
+	      dmatrix & d, dmatrix & dfd,
+	      dmatrix & e, dmatrix & dfe,
+	      dmatrix & f, dmatrix & dff,
+	      dmatrix & g, dmatrix & dfg,
+	      dmatrix & xbet, dmatrix & dfxbet,
+	      dmatrix & xgam, dmatrix & dfxgam,
+	      dmatrix & ybet, dmatrix & dfybet,
+	      dmatrix & ygam, dmatrix & dfygam,
+	      dmatrix & psi, dmatrix & dfpsi,
+	      dvector & rr, dvector & dfrr,
+	      dvector & uu, dvector & dfuu,
+	      dvector & work, dvector & dfwork,
+	      dvector & work1, dvector & dfwork1,
+	      dmatrix & u, dmatrix & dfu); //, intersavetype * savefile);
+
+   //void adi(dvar_matrix & u);
+   //void dfadi(coff_t & coff, dmatrix & u, dmatrix & dfu);
+   //void adi(dmatrix & u, const par_t  &param);
+   //void adi(dvar_matrix & u, const par_t  &param);
+   ////////////////////////////
+
+   int get_k() { return k; }
+//virtual char get_scheme() { return NULL; }
+   void clean();
+   void write(ostream & s, int i, int j);
+
+ public:
+   dvar_matrix & get_a() { return _a; }
+   dvar_matrix & get_b() { return _b; }
+   dvar_matrix & get_raw_b() { return _raw_b; }
+   dvar_matrix & get_c() { return _c; }
+   dvar_matrix & get_d() { return _d; }
+   dvar_matrix & get_e() { return _e; }
+   dvar_matrix & get_f() { return _f; }
+   dvar_matrix & get_g() { return _g; }
+   dvar_matrix & get_xbet() { return _xbet; }
+   dvar_matrix & get_ybet() { return _ybet; }
+   dvar_matrix & get_xgam() { return _xgam; }
+   dvar_matrix & get_ygam() { return _ygam; }
+   dvar_matrix & get_psi() { return _psi; }
+   dvar_vector & get_rr() { return _rr; }
+   dvar_vector & get_uu() { return _uu; }
+   dvar_vector & get_work() { return _work; }
+   dvar_vector & get_work1() { return _work1; }
+
+   void vSaveValue(dvar_matrix&,  const char *);
+   void vSaveValue(dmatrix&,  const char *);
+   /*
+   dmatrix vGet(dmatrix& m);
+   dmatrix vGet(dvar_matrix& m);
+   dvector vGet(dvector& v);
+   dvector vGet(dvar_vector& v);
+   double vGet(double x);
+   double vGet(dvariable x);
+
+   void vSet(prevariable y, const double x);
+   void vSet(double & y, const double x);
+
+   void vSaveValue(dmatrix&,  const char *, intersavetype * );
+   void vSaveValue(dvar_matrix&,  const char *, intersavetype * );
+   void vGetValue(dmatrix& m, const char * id, intersavetype * savefile, 
+                  dvar_matrix_position * pos = NULL);
+   void vGetValue(dvar_matrix& m, const char * id, intersavetype * savefile, 
+                  dvar_matrix_position * pos = NULL);
+   void vGetValue(dmatrix& m, const char * id, intersavetype * savefile, 
+                  dmatrix_position * pos = NULL);
+   */
+   void vGetValue(dmatrix& m, const char * id, dmatrix_position * pos = NULL);
+   void vGetValue(dvar_matrix& m, const char * id, dvar_matrix_position * pos = NULL);
+ protected:
+   int k;			//param.m_ipar[6] or 1
+
+ private:
+   dvar_matrix _a;
+   dvar_matrix _b;
+   dvar_matrix _raw_b;
+   dvar_matrix _c;
+   dvar_matrix _d;
+   dvar_matrix _e;
+   dvar_matrix _f;
+   dvar_matrix _g;
+
+   dvar_matrix _ybet;
+   dvar_matrix _ygam;
+   dvar_matrix _xbet;
+   dvar_matrix _xgam;
+   dvar_matrix _psi;
+
+ protected:
+   int imax;			//param.m
+   int jmax;			//param.n
+
+   ivector ilb;
+   ivector iub;
+   ivector jlb;
+   ivector jub;
+
+   dvar_vector _rr;
+   dvar_vector _uu;
+   dvar_vector _work;
+   dvar_vector _work1;
+};
+
+  
+class Upwind_coff_t:public coff_t 
+{
+ public:
+   using coff_t ::ilb;
+   using coff_t ::iub;
+   using coff_t ::jlb;
+   using coff_t ::jub;
+   using coff_t ::get_a;
+   using coff_t ::get_raw_b;
+   using coff_t ::get_b;
+   using coff_t ::get_c;
+   using coff_t ::get_d;
+   using coff_t ::get_e;
+   using coff_t ::get_f;
+   using coff_t ::get_ybet;
+   using coff_t ::get_ygam;
+
+ public:
+   Upwind_coff_t(Model_area & param, int ipar6):coff_t  (param, ipar6) {; }
+   Upwind_coff_t(Upwind_coff_t & t);
+   Upwind_coff_t(coff_t  &t);
+   virtual ~ Upwind_coff_t() {; }
+ public:
+   void comp(par_t  &param,
+	     const dvar_matrix & u, const dvar_matrix & v, const dvar_matrix & sigma);
+ 
+   void dfcomp(coff_t  &coff,
+	       par_t  &param,
+	       par_t &dfparam,
+	       dmatrix & u, dmatrix & v, dmatrix & sigma,
+	       year_month & date, dmatrix & dfu, dmatrix & dfv,
+	       dmatrix & dfsigma); //, intersavetype * savefile);
+   void dfcomp(coff_t  &coff,
+	       par_t  &param,
+	       dmatrix & u, dmatrix & v, dmatrix & sigma,
+	       year_month & date, dmatrix & dfu, dmatrix & dfv,
+	       dmatrix & dfsigma, //intersavetype * savefile,
+	       dmatrix & dcoff, dmatrix & ecoff, dmatrix & fcoff,
+	       dmatrix & ybet_c, dmatrix & ygam_c, dmatrix & dfacoff,
+	       dmatrix & dfbcoff, dmatrix & dfccoff, dmatrix & dfdcoff,
+	       dmatrix & dfecoff, dmatrix & dffcoff, dmatrix & dfybet,
+	       dmatrix & dfygam);
+
+   dvariable atype(const dvariable um, const dvariable bsig, const int boundary);
+   dvariable btype(const dvariable _uu, const dvariable bsig, const dvariable fsig,
+		const double dt, const int boundary);
+   dvariable ctype(const dvariable up, const dvariable fsig, const int boundary);
+
+   void dfatype(double &dfacoff, double &dfum, double &dfbsig, double um,
+		int boundary);
+   void dfbtype(double &dfbcoff, double &dfuu, double &dfbsig,
+		double &dffsig, double _uu, int boundary);
+   void dfctype(double &dfccoff, double &dfup, double &dffsig, double up,
+		int boundary);
+
+   char get_scheme() { return 'U';
+   }
+};
+
+  
+class Centered_coff_t:public coff_t 
+{
+ public:
+   using coff_t ::ilb;
+   using coff_t ::iub;
+   using coff_t ::jlb;
+   using coff_t ::jub;
+   using coff_t ::get_a;
+   using coff_t ::get_raw_b;
+   using coff_t ::get_b;
+   using coff_t ::get_c;
+   using coff_t ::get_d;
+   using coff_t ::get_e;
+   using coff_t ::get_f;
+   using coff_t ::get_ybet;
+   using coff_t ::get_ygam;
+
+ public:
+ Centered_coff_t(Model_area & param, int ipar6):coff_t  (param,
+						ipar6)
+   {;
+   }
+   Centered_coff_t(Centered_coff_t & t);
+   Centered_coff_t(coff_t  &t);
+   virtual ~ Centered_coff_t()
+   {;
+   }
+
+ public:
+   void comp(par_t  &param,
+	     const dvar_matrix & u, const dvar_matrix & v, const dvar_matrix & sigma);
+   /*
+   void dfcomp(coff_t  &coff,
+	       par_t  &param,
+	       par_t &dfparam,
+	       dmatrix & u, dmatrix & v, dmatrix & sigma,
+	       year_month & date, dmatrix & dfu, dmatrix & dfv,
+	       dmatrix & dfsigma, intersavetype * savefile);
+   void dfcomp(coff_t  &coff,
+	       par_t  &param,
+	       dmatrix & u, dmatrix & v, dmatrix & sigma,
+	       year_month & date, dmatrix & dfu, dmatrix & dfv,
+	       dmatrix & dfsigma, intersavetype * savefile,
+	       dmatrix & dcoff, dmatrix & ecoff, dmatrix & fcoff,
+	       dmatrix & ybet_c, dmatrix & ygam_c, dmatrix & dfacoff,
+	       dmatrix & dfbcoff, dmatrix & dfccoff, dmatrix & dfdcoff,
+	       dmatrix & dfecoff, dmatrix & dffcoff, dmatrix & dfybet,
+	       dmatrix & dfygam);
+   */
+   dvariable atype(const dvariable um, const dvariable bsig, const int boundary);
+   dvariable btype(const dvariable _uu, const dvariable bsig, const dvariable fsig,
+		const double dt, const int boundary);
+   dvariable ctype(const dvariable up, const dvariable fsig, const int boundary);
+
+   void dfctype(double &dfccoff, double &dfup, double &dffsig, double up,
+		int boundary);
+   void dfbtype(double &dfbcoff, double &dfuu, double &dfbsig,
+		double &dffsig, double uu, int boundary);
+   void dfatype(double &dfacoff, double &dfum, double &dfbsig, double um,
+		int boundary);
+
+   char get_scheme() { return 'C'; }
+};
+
+
+void bogus_dfadi(void);
+#endif

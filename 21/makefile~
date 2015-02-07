@@ -1,0 +1,126 @@
+.SUFFIXES: .cpp .obj
+.PHONY: ALL CLEAN BIN RULES
+CC = g++
+LL = g++
+#AD_DIR = /usr/local/admodel
+AD_DIR =/usr/local/admb-cygwin-gcc331
+# linux:
+#JAVA_DIR = $(JAVA_HOME)/jre/lib/i386/client
+
+JAVA_DIR = $(JAVA_HOME)
+
+JNI_GRAPHICS_DIR = /usr/local/jnigraphics
+
+BIN_DIR = $(HOME)/bin
+OBJ_DIR = gnu_obj
+vpath %.obj $(OBJ_DIR)
+vpath %.a $(OBJ_DIR)
+#VPATH = $(OBJ_DIR)
+
+#PFLAGS = -pg
+
+
+#CFLAGS = -Wno-deprecated -fpermissive -c -O -I. -I/usr/include/g++-3 -I$(AD_DIR)/include -I$(JNI_GRAPHICS_DIR)/include -I$(JAVA_DIR)/include -I$(JAVA_DIR)/include/win32 -I$(JAVA_DIR)/include/linux -D__GNUDOS__ -DOPT_LIB -D__REGIONAL__
+CFLAGS = -Wno-deprecated -fpermissive -c -O -I. -I$(AD_DIR)/include -I$(JNI_GRAPHICS_DIR)/include -I$(JAVA_DIR)/include -I$(JAVA_DIR)/include/win32 -I$(JAVA_DIR)/include/linux -D__GNUDOS__ -DOPT_LIB -D__REGIONAL__
+
+RULES:
+	@echo AD_DIR = $(AD_DIR)
+	@echo JNI_GRAPHICS_DIR = $(JNI_GRAPHICS_DIR)
+	@echo BIN_DIR = $(BIN_DIR)
+	@echo JAVA_DIR = $(JAVA_DIR)
+	@echo OSTYPE = $(OSTYPE)
+	@echo CFLAGS = $(CFLAGS)
+
+ALL: \
+	libmovemod.a \
+	rtagest21 \
+	makemap \
+	rtagmove \
+	fit_tab \
+	rtac \
+	covar21 \
+	gis_files \
+
+
+BIN:
+	mv -fv rtagest21 $(BIN_DIR)
+	mv -fv makemap $(BIN_DIR)
+	mv -fv rtagmove $(BIN_DIR)
+	mv -fv fit_tab $(BIN_DIR)
+	mv -fv rtac $(BIN_DIR)
+	mv -fv covar21 $(BIN_DIR)
+	mv -fv gis_files $(BIN_DIR)
+
+
+CLEAN:
+	rm -f $(OBJ_DIR)/*.obj
+	rm -f $(OBJ_DIR)/*.a
+	rm -f *.a
+	rm -f *.so
+	rm -f *.obj
+  
+
+include objects.lst
+
+libmovemod.a: $(LIBMOVEMOD_OBJECTS)
+	ar -rc $(OBJ_DIR)/libmovemod.a $^
+
+TEST_OBJECTS = liketest.obj
+
+setw: setw.obj
+	$(LL) $^ -L. -L$(AD_DIR)/lib  -lmovemod -lado -lor -o $@
+
+liketest: liketest.obj
+	$(LL) $^ -L. -L$(AD_DIR)/lib  -lmovemod -lads -lor -o $@
+
+walk: libmovemod.a $(WALK_OBJECTS) 
+	$(LL) $^ -L. -L$(AD_DIR)/lib  -lmovemod -lado -lor -o walk 
+
+medianest: libmovemod.a $(RTAGEST_OBJECTS) medianlk.obj
+	$(LL) $^ -L. -L$(AD_DIR)/lib  -lmovemod -lado -lor -o medianest 
+
+test_est: libmovemod.a $(TEST_EST_OBJECTS)
+	$(LL) $^ -L. -L$(AD_DIR)/lib  -lmovemod -lado -lor -o test_est 
+
+trimest: libmovemod.a $(TRIMEST_OBJECTS)
+	$(LL) $^ -L. -L$(AD_DIR)/lib  -lmovemod -lado -lor -o trimest 
+
+makemap: libmovemod.a $(MAKEMAP_OBJECTS)
+	$(LL) $^ -L. -L$(AD_DIR)/lib  -lmovemod -lado -lor -o makemap 
+
+rtagest21: libmovemod.a $(RTAGEST_OBJECTS)
+	$(LL) $^ -L$(OBJ_DIR) -L$(AD_DIR)/lib  -lmovemod -lado -ladt -o rtagest21 
+
+covar21: libmovemod.a $(COVAR_OBJECTS)
+	$(LL) $^ -L. -L$(AD_DIR)/lib  -lmovemod -lado -lor -o covar21 
+
+fit_tab: $(FIT_TAB_OBJECTS) 
+	$(LL) $^ -L. -L$(AD_DIR)/lib -lmovemod -lado -lor -o $@
+
+rtac: $(RTAC_OBJECTS) 
+	$(LL) $^ -L. -L$(AD_DIR)/lib -lmovemod -lado -lor -o $@
+
+gis_files: gis_files.obj
+	$(LL) $^ -L. -L$(AD_DIR)/lib -lmovemod -lado -lor -o $@
+
+rtagmove: libmovemod.a $(EXE_RTAGMOVE_OBJECTS)
+	$(LL)  $^ -L$(OBJ_DIR) -L$(AD_DIR)/lib  -L$(JNI_GRAPHICS_DIR)/lib -L$(JAVA_HOME)/jre/lib/i386/client -lmovemod -lado -ladt -ljnigraphics3 -o $@
+#$(LL)  $^ -L$(OBJ_DIR) -L$(AD_DIR)/lib  -L$(JNI_GRAPHICS_DIR)/lib -L$(JAVA_HOME)/jre/lib/i386/client -lmovemod -lado -ladt -ljnigraphics3 -ljvm -o $@
+#mv $@ $(BIN_DIR)
+
+tag_effort: libmovemod.a $(TAG_EFFORT_OBJECTS)
+	$(LL)  $^ -L. -L$(AD_DIR)/lib  -L$(JNI_GRAPHICS_DIR)/linux/lib -lmovemod -lado -lor -ljniGraphics -o tag_effort
+
+exe_tagmove15.obj: tagmove15.cpp 
+	$(CC) $(CFLAGS) -D__MAKE_EXECUTABLE__ tagmove15.cpp -o $(OBJ_DIR)/exe_tagmove15.obj
+
+
+###############
+
+.cpp.obj:
+	$(CC) $(CFLAGS) $< -o $(OBJ_DIR)/$@
+#$(CC) $(CFLAGS) $*.cpp -o $(OBJ_DIR)/$*.obj
+
+
+
+	

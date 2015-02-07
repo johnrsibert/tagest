@@ -1,0 +1,122 @@
+.SUFFIXES: .cpp .obj
+.PHONY: ALL CLEAN
+CC = g++
+LL = g++
+#AD_DIR = /cygdrive/c/apps2/admodel/cygwin
+AD_DIR = c:/apps2/admodel.2003/gnu
+#JAVA_DIR = /cygdrive/d/apps2/jdk1.2.2 
+#AKIRA_DIR = /cygdrive/d/movemod/akira2a/bcc55
+JNI_GRAPHICS_DIR=c:/apps2/jnigraphics3
+BIN_DIR = /cygdrive/e/movemod/bin
+OBJ_DIR = gnu_obj
+vpath %.obj $(OBJ_DIR)
+#VPATH = $(OBJ_DIR)
+VPATH = gnu_obj
+
+#PFLAGS = -pg
+
+
+#CFLAGS = -c -O -I. -I$(AD_DIR)/include -I$(AKIRA_DIR)/include -I$(JAVA_DIR)/include  -I$(JAVA_DIR)/include/linux -D__GNUDOS__ -DDOS386 -DOPT_LIB -D__REGIONAL__
+
+CFLAGS = -Wno-deprecated -fpermissive -c -O2 -I. -I$(AD_DIR)/include -I$(JNI_GRAPHICS_DIR)/include -D__GNUDOS__ -DOPT_LIB -D__REGIONAL__
+
+RULES:
+	@echo AD_DIR = $(AD_DIR)
+	@echo JNI_GRAPHICS_DIR = $(JNI_GRAPHICS_DIR)
+	@echo $(OSTYPE)
+
+ALL: \
+	libmovemod.a \
+	rtagest21 \
+	makemap \
+	rtagmove \
+	fit_tab \
+	rtac \
+	covar21 \
+	gis_files \
+#libwormwalk.so \
+#libpattdisp.so \
+#librtagmove.so \
+#libMakeIfr.so \
+#libMakePar.so
+
+CLEAN:
+	rm -f $(OBJ_DIR)/*.obj
+	rm -f $(OBJ_DIR)/*.a
+	rm -f *.obj
+  
+
+include objects.lst
+
+libmovemod.a: $(LIBMOVEMOD_OBJECTS)
+	ar -rc $(OBJ_DIR)/libmovemod.a $^
+
+walk: libmovemod.a $(WALK_OBJECTS) 
+	$(LL) $^ -L. -L$(AD_DIR)/lib  -lmovemod -lado -lor -o walk 
+
+test: libmovemod.a $(TEST_OBJECTS) test.obj
+	$(LL) $^ -L. -L$(AD_DIR)/lib  -lmovemod -lado -lor -o test 
+
+medianest: libmovemod.a $(RTAGEST_OBJECTS) medianlk.obj
+	$(LL) $^ -L. -L$(AD_DIR)/lib  -lmovemod -lado -lor -o medianest 
+
+test_est: libmovemod.a $(TEST_EST_OBJECTS)
+	$(LL) $^ -L. -L$(AD_DIR)/lib  -lmovemod -lado -lor -o test_est 
+
+trimest: libmovemod.a $(TRIMEST_OBJECTS)
+	$(LL) $^ -L. -L$(AD_DIR)/lib  -lmovemod -lado -lor -o trimest 
+
+makemap: libmovemod.a $(MAKEMAP_OBJECTS)
+	$(LL) $^ -L. -L$(AD_DIR)/lib  -lmovemod -lado -lor -o makemap 
+
+rtagest21: libmovemod.a $(RTAGEST_OBJECTS)
+	$(LL) $^ -L. -L$(AD_DIR)/lib  -lmovemod -lado -lor -o rtagest21 
+
+covar21: libmovemod.a $(COVAR_OBJECTS)
+	$(LL) $^ -L. -L$(AD_DIR)/lib  -lmovemod -lado -lor -o covar21 
+
+fit_tab: $(FIT_TAB_OBJECTS) 
+	$(LL) $^ -L. -L$(AD_DIR)/lib -lmovemod -lado -lor -o $@
+
+rtac: $(RTAC_OBJECTS) 
+	$(LL) $^ -L. -L$(AD_DIR)/lib -lmovemod -lado -lor -o $@
+
+gis_files: gis_files.obj
+	$(LL) $^ -L. -L$(AD_DIR)/lib -lmovemod -lado -lor -o $@
+
+rtagmove: $(EXE_RTAGMOVE_OBJECTS) 
+	$(LL)  $^ -L$(OBJ_DIR) -lmovemod -L$(AD_DIR)/lib -lado -ladt  -L$(JNI_GRAPHICS_DIR)/lib -ljnigraphics3 -o rtagmove
+
+tag_effort: libmovemod.a $(TAG_EFFORT_OBJECTS)
+	$(LL)  $^ -L. -L$(AD_DIR)/lib  -L$(AKIRA_DIR)/linux/lib -lmovemod -lado -lor -ljniGraphics -o tag_effort
+
+librtagmove.so: $(RTAGMOVE_OBJECTS) libmovemod.a
+	g++  -shared -fpic $^ -L. -L$(AD_DIR)/lib  -L$(AKIRA_DIR)/linux/lib -lmovemod -lado -lor -ljniGraphics -o librtagmove.so
+
+libpattdisp.so: $(PATTDISP_OBJECTS) libmovemod.a
+	g++  -shared -fpic $^ -L. -L$(AD_DIR)/lib  -L$(AKIRA_DIR)/linux/lib -lmovemod -lado -lor -ljniGraphics -o libpattdisp.so
+
+librpreproc.so: $(PREPROC_OBJECTS) libmovemod.a
+	g++  -shared -fpic $^ -L. -L$(AD_DIR)/lib  -L$(AKIRA_DIR)/linux/lib -lmovemod -lado -lor -ljniGraphics -o librpreproc.so
+
+libMakePar.so: $(MAKEPAR_OBJECTS) $(PREPROC_OBJECTS) libmovemod.a
+	g++  -shared -fpic $^ -L. -L$(AD_DIR)/lib  -L$(AKIRA_DIR)/linux/lib -lmovemod -lado -lor -ljniGraphics -o libMakePar.so
+
+libMakeIfr.so: $(MAKEIFR_OBJECTS) $(PREPROC_OBJECTS) libmovemod.a
+	g++  -shared -fpic $^ -L. -L$(AD_DIR)/lib  -L$(AKIRA_DIR)/linux/lib -lmovemod -lado -lor -ljniGraphics -o libMakeIfr.so
+
+exe_tagmove15.obj: tagmove15.cpp 
+	$(CC) $(CFLAGS) -D__MAKE_EXECUTABLE__ tagmove15.cpp -o $(OBJ_DIR)/exe_tagmove15.obj
+
+
+
+###############
+
+.cpp.obj:
+	$(CC) $(CFLAGS) $< -o $(OBJ_DIR)/$@
+
+#$(CC) $(CFLAGS) $< -o $(OBJ_DIR)/$@
+
+
+
+	

@@ -1,0 +1,36 @@
+REGION=-R115/195/-20/15
+echo $REGION
+PROJECTION=-JM6i
+echo $PROJECTION
+rm grid16.ps
+gmtset GRID_CROSS_SIZE 0 ANOT_FONT_SIZE 10 DEGREE_FORMAT 3 BASEMAP_TYPE FANCY PAPER_MEDIA LETTER PAGE_ORIENTATION PORTRAIT
+psbasemap -B10 $REGION $PROJECTION -V -K > grid16.ps
+#psbasemap -B10 $REGION $PROJECTION -G190/255/255 -V -K > grid16.ps
+#psbasemap -B10g5 $REGION $PROJECTION -G190/255/255 -V -K > grid16.ps
+# draw region numbers in each cell
+#pstext  grid16_map.txt  $REGION $PROJECTION -G128/0/0  -V -O -K >> grid16.ps
+echo "163 13.0 12 0 0 6 1" | pstext  $REGION $PROJECTION -V -O -K >> grid16.ps
+echo "141  8.5 12 0 0 6 4" | pstext  $REGION $PROJECTION -V -O -K >> grid16.ps
+echo "161.0  8.5 12 0 0 6 5" | pstext  $REGION $PROJECTION -V -O -K >> grid16.ps
+echo "183.0  8.5 12 0 0 6 6" | pstext  $REGION $PROJECTION -V -O -K >> grid16.ps
+echo "141  3.5 12 0 0 6 7" | pstext  $REGION $PROJECTION -V -O -K >> grid16.ps
+echo "161.0  3.5 12 0 0 6 8" | pstext  $REGION $PROJECTION -V -O -K >> grid16.ps
+echo "183.0  3.5 12 0 0 6 9" | pstext  $REGION $PROJECTION -V -O -K >> grid16.ps
+echo "143  -1.0 12 0 0 6 10" | pstext  $REGION $PROJECTION -V -O -K >> grid16.ps
+echo "161.0  -2.0 12 0 0 6 11" | pstext  $REGION $PROJECTION -V -O -K >> grid16.ps
+echo "183.0  -2.0 12 0 0 6 12" | pstext  $REGION $PROJECTION -V -O -K >> grid16.ps
+echo "163.0  -8.0 12 0 0 6 13" | pstext  $REGION $PROJECTION -V -O -K >> grid16.ps
+echo "183.0  -8.0 12 0 0 6 14" | pstext  $REGION $PROJECTION -V -O -K >> grid16.ps
+echo "157.0  -16.0 12 0 0 6 15" | pstext  $REGION $PROJECTION -V -O -K >> grid16.ps
+echo "183.0  -16.0 12 0 0 6 16" | pstext  $REGION $PROJECTION -V -O -K >> grid16.ps
+echo "122.5  3.5 12 0 0 6 2" | pstext  $REGION $PROJECTION -V -O -K >> grid16.ps
+echo "126.5  -5.5 12 0 0 6 3" | pstext  $REGION $PROJECTION -V -O -K >> grid16.ps
+#draw coastlines
+pscoast $REGION $PROJECTION -Di -G192 -W -V -O -K >> grid16.ps
+#pscoast $REGION $PROJECTION -Di -G155/191/33 -W -V -O -K >> grid16.ps
+#draw region boundaries
+psxy grid16_regions.txt  $REGION $PROJECTION -A -M -W1p/0 -V -O >> grid16.ps
+#extract coastline data for gmt2cst
+pscoast $REGION -Dc -W -M > grid16gmt.dat
+rm .gmt*
+ghostview grid16.ps

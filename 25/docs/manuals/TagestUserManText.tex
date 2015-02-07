@@ -1,0 +1,938 @@
+ see TagestUserMan.tex for macro definitions
+
+\setcounter{page}{1}
+
+
+%gcc (Ubuntu 4.4.3-4ubuntu5) 4.4.3
+
+\section*{Introduction}
+Work on this software began in the late 1980s using DOS computers with
+16-bit word length and segmented architecture. As a result there are
+quite a few ``legacy'' issues such as odd (i.e. short and cryptic)
+file names and certain hard coded restrictions in the code.
+Previous versions of this software had been compiled using
+Borland, Zortech and gnu compilers under Windows and gnu compilers
+under linux. Currently the only supported compiler is g++ under
+linux, but porting to MinGW under Windows is probably feasible. 
+
+Adam and Sibert (2004) describe an extension of this software that
+uses a neural network to compute the movement and mortality parameters
+from fields of environmental variables. This documentation is largely
+confined to the ``regional'' model.
+
+\section*{Installation}
+\subsection*{Environment Variables}
+Set these to the appropriate paths for your computer in \verb|~/.bashrc|.
+{\par\baselineskip=0.8\normalbaselineskip
+\begin{verbatim}
+export JAVA_HOME=/usr/local/java
+export JNIGRAPHICS_PATH=/usr/local/jnigraphics
+export LD_LIBRARY_PATH=/usr/local/java/jre/lib/amd64:/usr/local/java/jre/lib/amd64/serve
+export ADMB_HOME=/usr/local/admb
+export ETOPO_HOME=/home/other/etopo
+export OSTYPE
+export HOSTNAME
+\end{verbatim}
+\par}
+
+\section*{Preprocessors}
+The \TT\ software expects data in specific formats. The preprocessors
+read data from original sources and create files for direct input to
+\TT. 
+
+Discretization errors occur inevitably in the numerical solution of
+differential equations. In \TT, these errors are manifested when
+fishing occurs in the same computational element as a coastline. Ocean
+modelers often address this problem by increasing the spatial
+resolution of their models or by adjusting the land mask to shift the
+problematical stretch of coastline. These options are available in
+\TT. In addition, the preprocessors off the opportunity to shift
+`events'' (fishing effort, tag release or tag recapture) that are
+reported to have occurred on ``land'' to nearby positions in the
+ocean. The shift list file, discussed below, enables position shifting
+to occur in a consistent way for  all fishing effort, tag release or
+tag recapture data.
+
+\subsection*{Preprocessor input files}
+Note the geographic position refers to the southwest corner of the geographic square.
+\begin{description}
+\item[file\_nam.dat] This short, 4-line, file contains a list of 
+file name roots to be used by the
+preprocessors. Here is an example from an SPC application.
+{\par\baselineskip=0.8\normalbaselineskip
+\begin{verbatim}
+skj16
+recaps_skj
+dates_pt 
+fleet_ps
+\end{verbatim}
+\par}
+\begin{description}
+  \item[skj16] The first record is the root file name used for all
+preprocessor output files including the \PAR\ file for \TT. The name should
+reflect the specific model domain.
+  \item[recaps\_skj] The second record is the root name for the tag
+release and recapture file to which the ``{\tt .dat}'' will be
+appended. In this example the preprocessor will look for a file named 
+for a file named {\tt recaps\_skj.dat} in the parent directory.
+  \item[dates\_pt] The third record specifies a file containing 
+the starting and ending dates to
+be included in the analysis. This file contains two records, the first
+record contains the starting year and month, e.g. {\tt 2005 01} and
+the second record contains the ending year and month in the same
+format, e.g. {\tt 2012 12}. This example will cause the preprocessor
+to create \TT\ data files encompassing the period from January
+2005 through December 2012.
+  \item[fleet\_ps] The fourth record specifies the name of a
+file containing the fleets to be
+considered in the analysis. For example {\tt fleet\_ps.dat} contains
+18 records like "{\tt JPPS\_PT}" which tells the preprocessors to look
+for files like {\tt JPPS\_PT.dat} in the parent directory.
+\end{description}
+\item[dates\_pt.dat] As specified in {\tt file\_nam.dat}, starting and
+ending dates for the analysis
+{\par\baselineskip=0.8\normalbaselineskip
+\begin{verbatim}
+2005 01
+2014 12
+\end{verbatim}
+\par}
+\item[fleet\_ps.dat]  As specified in {\tt file\_nam.dat}, list of
+fleet names used in the analysis. Here is an example with 18 fleets.
+{\par\baselineskip=0.8\normalbaselineskip
+\begin{verbatim}
+CNPS_PT
+EPPS_PT
+ESPS_PT
+FMPS_PT
+IDPS_PT
+JPPS_PT
+KIPS_PT
+KRPS_PT
+MHPS_PT
+NZPS_PT
+PGPS_PT
+PHPS_PT
+SBPS_PT
+SVPS_PT
+TVPS_PT
+TWPS_PT
+USPS_PT
+VUPS_PT
+\end{verbatim}
+\par}
+\item[skj16.prn] This file contains a complete description of the
+model domain for the identifier
+specified in the first record of {\tt file\_nam.dat}. 
+The first record is a code indicating the file version code. Currently
+the only valid value of this code is ``\verb|#v20r|''.
+This file
+contains the number of grid cells in the longitude and latitude
+dimensions, the spatial resolution, the southwest corner of the, the
+minimum number of months a liberty for each cohort, the specific
+starting year and month, number of tag releases (probably ignored),
+and the number of fleets. This file also contains the ``grid map'' or
+land mask consisting of an integer for each cell in the model domain.
+A `0' in any cell indicates land and integers $>0$ indicate the region
+number. The final record in the file indicates the boundary conditions
+imposed on
+west, east, south and north boundaries; `1' indicates reflective, `0'
+indicates open.
+ 
+In the following example {\tt .prn} file, the model domain specifies
+80 cells in the longitude dimension and 35 cells in the latitude
+dimension. The lines have been shortened from 80 cells to 10 for
+readability, but there are 35 lines. The spatial resolution is 1
+degree (60 nautical miles), and the southwest corner is 115.0{E}
+$\times$
+20.0\deg{S}. {\bf Degrees are always decimal degrees, never in
+degrees and minutes.}
+{\par\baselineskip=0.8\normalbaselineskip
+\begin{verbatim}
+#v20r
+#   M    N  deltax  deltay  sw_long sw_lat
+   80   35     60     60     115E    20S
+#  nmonth  start_year  start_month  nrelease  nfleet
+     12       2006          8            5000      18
+# grid map
+#   1    2    3    4    5    6    7    8    9   10  ...
+#
+    2    2    2    2    2    2    0    2    2    2  ...
+    2    2    2    2    2    2    2    0    0    2  ...
+    2    2    2    2    2    2    2    2    2    2  ...
+    2    2    2    2    2    2    2    0    2    2  ...
+    2    2    2    2    0    2    2    2    0    2  ...
+    2    2    2    0    2    2    2    2    2    2  ...
+    2    2    0    2    2    2    2    2    2    2  ...
+    2    2    2    2    2    2    2    2    2    0  ...
+    0    0    0    2    2    2    2    2    2    0  ...
+    0    0    0    2    2    2    2    2    2    2  ...
+    0    0    0    0    2    2    2    2    2    2  ...
+    0    0    0    2    2    2    2    2    2    2   ...
+    0    0    0    2    2    2    2    2    2    2  ...
+    0    0    0    0    2    2    2    2    2    2  ...
+    0    0    0    2    2    0    0    0    0    3  ...
+    0    0    0    3    0    3    3    3    3    3  ...
+    0    0    0    3    0    0    0    0    3    3  ...
+    0    0    0    3    0    0    0    3    3    3  ...
+    0    0    0    3    0    3    0    0    3    3  ...
+    0    0    3    3    0    3    3    0    3    3  ...
+    0    0    3    3    0    3    3    3    3    3  ...
+    0    3    3    3    3    3    3    3    3    3  ...
+    3    3    3    3    3    3    3    3    3    3  ...
+    0    0    0    0    0    0    0    0    0    0  ...
+    0    0    0    0    0    0    0    0    0    0  ...
+    0    0    0    0    0    0    0    0    0    0  ...
+    0    0    0    0    0    0    0    0    0    0  ...
+    0    0    0    0    0    0    0    0    0    0  ...
+    0    0    0    0    0    0    0    0    0    0  ...
+    0    0    0    0    0    0    0    0    0    0  ...
+    0    0    0    0    0    0    0    0    0    0  ...
+    0    0    0    0    0    0    0    0    0    0  ...
+    0    0    0    0    0    0    0    0    0    0  ...
+    0    0    0    0    0    0    0    0    0    0  ...
+    0    0    0    0    0    0    0    0    0    0  ...
+#
+#  boundary conditions:
+#  west_bndry    east_bndry    south_bndry    north_bndry
+       1             1             1             1
+\end{verbatim}
+\par}
+
+\item{skj16.pos} This file contains the position shifting list. It is
+automatically generated by {\tt makeifr} and {\tt makepar}. If it is
+absent, it is created interactively. If it is present, it is augmented
+as additional positions are added. Each record consists of longitude
+latitude pairs indicating ``from'' and ''to'' for the position shifts.
+Normally the user will not need to edit this file since it is
+generated and maintained automatically by the preprocessors. In the
+example below, all ``events'' (fishing effort, tag release or tag
+recapture) that occur at position 146\deg{E}$\times$7\deg{S},
+which is on land as defined by the land mask,
+will be shifted to position 146\deg{E}$\times$6\deg{S}.
+{\par\baselineskip=0.8\normalbaselineskip
+\begin{verbatim}
+146E 7S 146E 6S
+135E 4S 135E 3S
+\end{verbatim}
+\par}
+
+\item{skj16.cst} A file of closed polygons used to map coastlines by
+the jnigraphics library in \TM. It is generated by running {\tt gmt2cst}.
+\end{description}
+
+\subsection*{{\tt makemap}}
+This program will generate a ``land mask'', a matrix of 1s and 0s
+indicating water and land respectively.  Input to {\tt makemap} is the first
+line of the {\tt .prn} file mentioned above. The software reads the
+etopo5\footnote{\href{http://www.ngdc.noaa.gov/mgg/global/etopo5.HTML}
+{www.ngdc.noaa.gov/mgg/global/etopo5.HTML}}
+data base, file  {\tt etopo5.dos} in a directory
+pointed to by the {\tt ETOPO\_HOME} environment variable. It scores a
+computational element as being on land if the number of 5 minute
+geographic squares in the data base is greater than 0. By default {\tt
+makemap} generates a land mask for each of three threshold elevations,
+0m, -10m and -100m, and writes each land mask on the 
+file {\tt makemap.log}. The land mask can be copied from the {\tt
+.log} file into the relevant part of the {\tt .prn} file for input
+into other preprocessors.
+ 
+The land mask is the starting point for the ``gridmap'' section of the
+\PAR\ files. Perhaps the easiest way to create a gridmap is to import
+the land mask into a spreadsheet to assign appropriate region numbers
+to the ocean (non-zero) cells.
+
+\subsection*{{\tt makeifr}}
+This program builds the indexed regional fishery record data structure
+(the ``ifr'') and saves it to a file. 
+Fishing does not occur in every
+possible cell in the model domain. Fishing data are, therefore, 
+relatively sparse, and it is inefficient to store effort data for the
+entire domain for every fleet and every date.
+The ifr is indexed by year, month
+and fleet so that by requesting effort data for a specific combination
+of year, month and fleet, it is possible to quickly obtain a matrix of
+fishing effort over the model domain.
+
+Change to the directory where the preprocessor input files are stored
+and type ``makeifr'' at the prompt. The program will start running,
+and if data reporting effort on land are encountered, you will be
+prompted to enter a alternate position to which to shift the effort.
+The {\tt .pos} file is updated on normal termination.
+If the {\tt .pos} file is not present on startup, {\tt makeifr} will
+issue a message and terminate. The workaround for this problem is to
+create an empty {\tt .pos} file, either by using the linux command
+{\tt touch} or by using a text editor.
+
+\subsection*{{\tt makepar}}
+This program builds the recapture, (\TAG) and the \PAR\ files. It uses
+the information in the {\tt .pos} file to shift release and recapture
+positions consistently with the shifting in the ifr. If additonal
+shift positions are required, you will be prompted in the same was as
+in {\tt makeifr}. If additional shifting does occur, the {\tt .pos} file is
+updated, and you should run {\tt makeifr} again to ensure that tag
+positions and effort positions are consistently shifted.
+
+
+\subsection*{{\tt gmt2cst}}
+Creates a {\tt .cst} file for use by the simulators.
+
+The following script will invoke GMT to extract coastline data for a model
+domain bounded by 115\deg{E}$\times$29\deg{S} and
+195\deg{E}$\times$14\deg{N} and save the points to the file 
+{\tt grid16gmt.dat}
+{\par\baselineskip=0.8\normalbaselineskip
+\begin{verbatim}
+#!/bin/bash
+REGION=-R115/195/-20/15
+echo $REGION
+PROJECTION=-JM6i
+echo $PROJECTION
+#extract coastline data for gmt2cst
+pscoast $REGION $PROJECTION -Di -W -M > grid16gmt.dat
+\end{verbatim}
+\par}
+
+Then type \verb|gmt2cst  grid16gmt.dat 115 -20 60 35| to build a 
+{\tt .cst} file for a $60\times35$ model domain for use by the simulators.
+This software is not yet completely reliable.
+
+
+\section*{Simulation}
+\subsection*{{\tt rtagmove}}
+Implementation of ADRM tag movement simulator.
+
+\subsection*{{\tt walk}}
+Implementation of biased random walk simulation using the same input
+files as {\tt rtagmove}
+
+\section*{Estimation}
+\subsection*{{\tt tagest}}
+Generalized \ADMB\ implementation of ADRM estimation procedure.
+
+\subsection*{{\tt rtagest25}}
+Original version of ADRM estimation simulator with adjoint code.
+Supplanted by the ADMB version and no longer supported. This version
+has not been kept up to date with the ADMB version but may be useful
+in some circumstances for testing.
+
+\section*{Postprocessors}
+\subsection*{{\tt obstac}}
+
+\section*{Working Directories}
+\subsection*{Project}
+\subsection*{Model Domain}
+\subsection*{Fits}
+
+\section*{File Structure}
+\subsection*{``Raw'' Data}
+\subsubsection*{Effort Data}
+Effort data records consist of 7 fields.
+From left to right the fields are
+\begin{enumerate}
+\item year/month - 4 byte year, slash, two byte month with leading
+zero.
+\item latitude - legitimate floating point number {\bf in decimal
+degrees, no minutes or seconds} with `N' or `S' appended.
+\item longitude - legitimate floating point number  with `E' or `W'
+appended.
+\item effort
+\item catch
+\item gear type
+\item flag 
+\end{enumerate}
+{\par\baselineskip=0.8\normalbaselineskip
+\begin{verbatim}
+2005/01	05.5S	164.0E	0.5	3.7	PS	JP
+2005/01	00.5S	159.0E	0.2	2	PS	JP
+2005/01	02.5S	162.0E	1.8	80	PS	JP
+2005/01	01.5S	162.0E	3	115	PS	JP
+2005/01	00.5N	162.0E	0	0	PS	JP
+2005/01	08.5S	163.0E	0	0	PS	JP
+2005/01	03.5S	163.0E	0.8	13.7	PS	JP
+2005/01	01.5S	163.0E	0.2	25	PS	JP
+\end{verbatim}
+\par}
+
+\subsubsection*{Tag Files}
+Tag release and recapture data are combined in a single file.
+
+Release records consist of 4 fields, from left to right:
+\begin{enumerate}
+\item year/month - 4 byte year, slash, two byte month with leading
+zero.
+\item latitude - same format as effort.
+\item longitude - same format as effort.
+\item number of tagged fish released.
+\end{enumerate}
+
+The release record is followed by a list of recaptures from the
+release cohort. Release records consist of 6 fields, from left to
+right:
+\begin{enumerate}
+\item tag number - any ascii string.
+\item year/month of recapture.
+\item latitude - same format as effort.
+\item longitude - same format as effort.
+\item gear - same format as effort.
+\item flag - same format as effort.
+\end{enumerate}
+It is OK for fields to be missing or entered as ``NA''
+
+{\par\baselineskip=0.8\normalbaselineskip
+\begin{verbatim}
+2006/08 06.50S 154.00E 36
+                       P00017 2006/11 NA NA PS TW
+                       P00020 2006/12 NA NA PS SY
+                       P00023 2007/01 NA NA PS PH
+                       P00005 2007/04 NA NA PS CN
+2006/08 05.50S 149.00E 430
+                       P03938 2006/09 05.50S 149.00E PS PG
+                       P03883 2006/09 05.50S 149.00E PS PG
+                       P03886 2006/09 05.50S 149.00E PS PG
+                       P03887 2006/11 04.00S 148.50E PS PG
+                       P03890 2006/09 05.50S 148.50E PS PG
+                       P03903 2006/09 05.50S 149.00E PS PG
+\end{verbatim}
+\par}
+
+\subsection*{Domain-specific Data}
+\subsubsection*{{\tt .par} Files}
+
+
+\section*{Model options}
+\subsection*{Likelihood, control flag 11}
+Several likelihood functions are available in \TE. The most useful
+is the Poisson (set control flag 11 to 2). This option appears to be
+applicable in most applications.  Many of the other
+likelihood options are either deprecated or are of limited use. 
+\begin{equation}
+L = \frac{\widehat{C}^C e^{-\widehat{C}}}{C!},
+\label{eqn:Poiss}
+\end{equation}
+where $C$ is the observed number of tag returns and $\widehat{C}$ is the
+predicted number of tag returns.
+
+The only
+other useful likelihood option is the negative binomial which has
+several different forms. 
+Setting control flag 11 to 24 will invoke the
+negative binomial likelihood estimating a separate dispersion
+parameter for each fishing fleet. 
+Setting control flag 11 to 25 will invoke the
+negative binomial likelihood with a separate dispersion
+parameter for each fishing fleet, but the dispersion parameter will be
+held constant at to value in the \PAR\ file and not estimated.
+Use of the negative binomial likelihood requires on additional field
+in the \PAR\ file for each fleet.
+
+\subsection*{Cohort pooling, control flag 13}
+A tag ``cohort'' is defined as all of the tags released during one
+time step in a computational element of the model domain, for example,
+all of the tags released in a 1\deg{} geographic square during one
+month. Typically there are 100s of tag cohorts in an analysis.
+The likelihood for each cohort would ideally be computed separately
+for each cohort 
+and summed over all cohorts, but such an approach
+would produce impossibly long derivative chains and would not be a
+feasible computation. 
+
+One alternative is to pool the cohorts by
+releasing tags into a single pooled cohort at the appropriate time and place in
+the model domain. The likelihood is computed only once. 
+Set control flag 13 to 1 for pooled cohorts.
+
+A second
+alternative is to aggregate the release cohorts in to ``monthly''
+release units. Under this option, the likelihood is
+computed separately for each monthly release unit and summed over all
+release units. 
+Set control flag 13 to 2 to use monthly cohorts.
+
+The option not to pool the cohorts (flag 13 set to 0) is used in the
+simulator to compute the ``predicted'' recaptures for a tag attrition
+curve.
+
+\subsection*{Months after last cohort, {\tt nmonth}}
+\TE\ is essentially a tag attrition model. The {\tt nmonth} variable
+in the \PAR\ file specifies the number of months after the release of
+the last tag cohort to continue the likelihood computation. The
+optimum time to continue the computation appears to be between 24 and
+36 months.
+
+\subsection*{ADI iterations per month, control flag 6}
+Although the ADI algorithm is unconditionally stable, transient
+instabilities occasional occur if there are large spatial gradients in
+tag density such as in the first one or two months after release of a
+large cohort. Such cases are indicated by a banded patter in the tag
+density display in \TM. The default value is 4 ADI iterations per
+month. Increasing this number to 6 usually removes the problem (but
+also increases the length of the derivative chain).
+
+\subsection*{``Special'' mortality, control flag 19}
+This option is a kludge to model unique mortality, for instance on
+younger fish, in some regions. The default value, 0, implies no
+special morality. Set the value of control flag 19 to the region
+number for which it is necessary to estimate a unique mortality. This
+option was developed for the Philippines domestic yellowfin fishery
+where large numbers of juvenile fish were tagged and it was
+hypothesized 
+that the natural mortality might be higher for younger fish.
+Use of this option requires an additional field in the \PAR\ file.
+
+\subsection*{Catchability estimation, control flag 25}
+Setting this flag to 2 (the default) causes \TE\ to estimate a unique
+catchability coefficient, $q_f$, for each fleet. Setting the flag to
+1, causes \TE\ to assume that catchability if constant over all
+fleets.
+\begin{center}
+%\renewcommand{\baselinestretch}{1.5} \small\normalsize
+\begin{tabular}{cp{4.0in}}
+\hline
+Flag 25 & Action\\
+\hline
+ 0 & Catchability not estimated; constant at input values.\\
+ 1 & Catchability assumed equal for all fleets; $q_f = q_1; f = 2 \dots n$.\\
+ 2 & Unique catchability coefficient estimated for each fleet.\\
+\hline
+\end{tabular}
+%\renewcommand{\baselinestretch}{1.0} \small\normalsize
+\end{center}
+
+
+\subsection*{Reporting rate estimation, control flag 28}
+\begin{center}
+%\renewcommand{\baselinestretch}{1.5} \small\normalsize
+\begin{tabular}{cp{4.0in}}
+\hline
+Flag 28 & Action\\
+\hline
+ 0 & Reporting rate not estimated; constant at input values.\\
+ 1 & Unique reporting coefficient estimated for each fleet.\\
+\hline
+\end{tabular}
+%\renewcommand{\baselinestretch}{1.0} \small\normalsize
+\end{center}
+Generally speaking reporting rates are confounded with catchability
+coefficients so that it usually impossible to estimate both. If
+independent estimates of reporting rate are available, the should be
+used, and flag 27 set to zero.
+
+In some cases, it may be possible to assume uniform catchability over
+all fleets, such as the FAD-based purse seine fishery. In such cases
+it may be possible to estimate reporting rates by setting flag 25 to
+1; see Table \ref{tab:reporting}.
+
+\begin{table}
+\begin{center}
+\caption[Reporting rate estimation]
+{Results of attempts to estimate reporting rate for skipjack in the
+purse seine fishery. 
+In fit p05, reporting rate is held constant at
+0.5 (a figure similar to that reported by Hoyle, 2011) over all
+fleets, and a unique catchability is estimated for each fleet.
+In fit p02, a single catchability and separate reporting rates are
+estimated for each fleet. The negative log likelihood decreases from
+20342 to 20340 with an addition of a single parameter, a significant
+improvement at the 95\% confidence level.
+}
+\label{tab:reporting}
+\begin{tabular}{lcccrrrrr}
+\hline
+Fit & Flag 25 & Flag 28 & Flag 53 & $n$ & $M$ & $q_{jpps}$ & $R_{jpps}$ & $-\log L  $\\ 
+\hline
+p05 & 2 & 0 & 2 & 95 & 0.073 & 0.0047 & {\bf 0.5} & 20342\\
+p02 & 1 & 1 & 2 & 96 & 0.063 & 0.063 & 0.325 & 20340\\
+p03 & 1 & 1 & 1 & 96 &\multicolumn{4}{c}{\it no solution}\\
+p04 & 1 & 1 & 0 & 96 & 0.168 & 0.0265 & 1.0 & 16846\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\begin{table}
+\caption[Effects of flags 27 and 53]
+{Comparision of liklihood values and estimates of natural mortality
+and Japanese purse seine catchability coefficient.}
+\label{tab:flag2753}
+\begin{center}
+\begin{tabular}{cccrrr}
+\hline
+Fit & Flag 27 & Flag 53 & $-\log L$ & $\widehat{M}$ & $\hat{q}_{jpps}$ \\
+\hline
+ 11 & 0 & 0 & 16864 & 0.185 & 0.028 \\
+ 12 & 0 & 1 & 17335 & 0.182 & 0.028 \\
+ 14 & 0 & 2 & 20372 & 0.099 & 0.020 \\
+\\
+ 0b & 1 & 0 & 16821 & 0.185 & 0.034 \\
+ 0f & 1 & 1 & \multicolumn{3}{c}{\it no solution}\\
+ 10 & 1 & 2 & 20327 & 0.094 & 0.024 \\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+\subsection*{Baranov catch equation, control flag 27}
+This option switches the computation of predicted tag recapture
+between the simple approximation (0) and the Baranov (1) form:
+\begin{center}
+\renewcommand{\baselinestretch}{1.5} \small\normalsize
+\begin{tabular}{cp{4.0in}}
+\hline
+Flag 27 & Action\\
+\hline
+ 0 & $\widehat{C}_{ijtf} = F_{ijtf} P_{ijt}$\\
+ 1 & $\widehat{C}_{ijtf} = F_{ijtf} P_{ijt}\frac{1-e^{-(F_{ijtf}+M)}}{F_{ijtf}+M}$\\
+\hline
+\end{tabular}
+\renewcommand{\baselinestretch}{1.0} \small\normalsize
+\end{center}
+
+From the results presented in Table \ref{tab:flag2753} use of the
+Baranov form has little effect on the parameter estimates. Further,
+its use in conjunction of flag 53 requires the Barnov equation be
+solved for $F$ by some iterative method. To date the
+Newton-Raphson method has not been notably useful.
+
+\subsection*{Normalize Fishing Effort, control flag 51}
+This option normalizes the fishing effort for each fleet to the mean
+fishing effort for that fleet. Control flag 52 is set by the software
+and indicates whether the
+catchability coefficients have been appropriately rescaled. The user
+should not manually change control flag 52.
+
+Let $E_{fijt}$ be the reported
+fishing effort for fleet $f$ in computational element (1\deg{} square)
+$(ij)$ in month $t$. Let $n_f = |E_{fijt}>0|$, the total number of
+time$\times$area strata where fishing effort was
+reported. Then
+\begin{equation}
+\widebar{E_f} = \frac{\sum_{ijt}E_{fijt}}{n_f}
+\end{equation}
+is the mean effort for fleet $f$, 
+and the normalized fishing effort is 
+\begin{equation}
+E^{\prime}_{fijt} = \frac{E_{fijt}}{\widebar{E_f}}.
+\end{equation}
+The average normalized fishing effort is $1$ for all fleets.
+
+Fishing mortality for use in the catch equations and total mortality
+is computed as
+\begin{equation}
+F_{ijtk} = q_k \cdot E^{\prime}_{ijtk},
+\end{equation}
+and \TE\ estimates $q_k$ appropriately.
+This transformation appears to stabilize the estimation of $q_k$.
+The average fishing mortality in a any 1\deg{} square,
+i. e. the fishing mortality resulting from application of average
+effort, is thus simply $q_k$.
+
+Sibert and Hampton (2003) used normalized fishing effort to compute
+average fishing mortality for each fleet.
+``Average fishing mortality rate was computed by
+multiplying the estimated catchability coefficients by the proportion
+of the total fished area exploited by each fleet.''
+\begin{equation}
+\widebar{F_k} = q_k \cdot\frac{n_l}{\sum_l n_l}
+\end{equation}
+where $n$ is defined as above.
+
+
+\subsection*{Effortless recaptures, control flag 53}
+Tags are occasionally reported from positions and dates for which no
+fishing effort has been reported. The causes of such reports are not
+entirely clear, but there are several possibilities: (1) simple errors
+in recording dates and positions; (2) tag recovered under circumstances
+where it is difficult or impossible to infer the data and position of
+recapture (from the well of a purse seiner at unloading); (3) delays
+in reporting fishing effort. Lack of fishing effort makes it
+impossible to compute fishing mortality and the predicted tag
+recaptures such that $\widehat{C}$ in equation (\ref{eqn:Poiss}) is
+zero. Thus, lack of fishing effort has no direct effect on the
+likelihood. Lack of fishing effort (and fishing mortality), as an
+indirect effect on the likelihood through the population of tags a
+liberty. The effortless recaptures are not removed from the population
+because fishing mortality computed to be zero for these recaptures.
+The tagged fish are remain in the population and are reflected in the
+likelihood through an inflated number of predicted recaptures at other
+locations and times. The result can be estimates of $M$ biased upward
+and estimates of $q$ biased downward.
+
+\begin{table}
+\caption[Effortless recaptures by fleet]{Historical development of
+effortless recaptures by fishing fleet. The numbers for the SSAP and
+RTTP are based on the same model domain used in Sibert and Hampton
+(2003). The numbers for the PTTP are from a different model domain.}
+\label{tab:fleeteffortless}
+\begin{center}
+\begin{tabular}{crrr}
+\hline
+Fleet & SSAP & RTTP & PTTP\\
+\hline
+ fjpl & 367  &    7 \\
+ jppl &  42  &   35 \\
+ kipl &      &    8 \\
+ pgpl &   3  \\
+ sbpl &   2  &   42 \\
+ cnps &      &       &    17 \\
+ fmps &       &      &22 \\
+ idps &      &       & 110 \\
+ jpps &   1  &   22 & 33 \\
+ kips &      &      &   2 \\
+ krps &      &   23   & 23 \\
+ mhps &      &       &   1 \\
+ pgps &      &       &  72 \\
+ phps &      &  169  & 224 \\
+ sbps &      &  108  & 267 \\
+ twps &      &   13  &  48 \\
+ usps &   1  &   41  & 73 \\
+ vups &      &       & 778 \\
+ phdo &      &   17 \\
+ iddo &      &    6 \\
+\hline
+Without E& 461 & 491 & 1674 \\
+ With E  & 1926   & 9161 & 9062 \\
+        & 19.3\% & 5.1\% & 15.6\%\\
+\hline
+\end{tabular}
+\end{center}
+\end{table}
+
+Effortless tag recapture has been a persistent feature of the tag
+recapture data since 1977 ranging from 5\% to 20\% of recaptures; 
+see Table \ref{tab:fleeteffortless}. Most
+of the effortless recaptures can be attributed to specific fleet,
+which appear to have been dilatory in reporting their fishing effort.
+In the case of the PTTP recaptures, the proportion of effortless
+recaptures is highest in 2010. This result indicates that the probable
+cause is delay in receiving and processing fishing effort data from
+the fishing fleets (Table \ref{tab:monthlyeffortless}). If so, the
+the proportion of effortless recaptures will likely decrease with time.
+
+\begin{sidewaystable}
+{\footnotesize
+\caption[Effortless recaptures by month]{Proportion of effortless
+recaptures over the duration of a tagging project. ``NA'' indicates no
+recaptures reported during the month. ``0'' indicates no effortless
+recaptures. The time span indicated by the number of years indicates
+the total period at liberty over which the \TE\ likelihood was
+evaluated.}
+\label{tab:monthlyeffortless}
+\begin{center}
+\begin{tabular}{lrrrrrrrrrrrr}
+\hline
+Year & \multicolumn{12}{c}{Month of Year}\\
+\hline
+      &        1  &       2 &        3  &       4 &        5 &        6 &        7 &        8 &        9 &       10&        11  &      12\\
+\hline
+ 1977 &       NA &       NA &       NA &       NA &       NA & NA &       NA &       NA &       NA &       NA &        0 &        0\\
+ 1978 &       NA &  0.00435 &        0 &  0.00694 &        0 & 0 &    0.844 &     0.97 &    0.795 &    0.731 &   0.0435 &   0.0192\\
+ 1979 &   0.0455 &    0.222 &    0.133 &        0 &        0 & 0.00505 &   0.0139 &  0.00862 &        0 &        0 &        0 & 0.0952\\
+ 1980 &    0.125 &    0.312 &    0.167 &    0.206 &   0.0625 & 0 &        0 &   0.0588 &        0 &        0 &    0.333 &        0\\
+ 1981 &      0.2 &      0.2 &    0.333 &       NA &        1 & 0 &        0 &      0.5 &       NA &       NA &       NA &       NA\\
+ 1982 &       NA &       NA &       NA &       NA &       NA & NA &       NA &       NA &       NA &       NA &       NA &       NA\\
+ 1983 &       NA &       NA &       NA &       NA &       NA & NA &       NA &       NA &       NA &       NA &       NA &       NA\\
+ 1984 &       NA &       NA &       NA &       NA &       NA & NA &       NA &       NA &       NA &       NA &       NA &       NA\\
+\hline
+ 1989 &       NA &       NA &       NA &       NA &       NA & NA &        0 &  0.00518 &        0 &  0.00909 &   0.0625 &        0\\
+ 1990 &        0 &        0 &    0.202 &    0.082 &   0.0423 & 0.107 &   0.0249 &    0.028 &  0.00676 &   0.0222 &   0.0726 & 0.125\\
+ 1991 &    0.125 &   0.0251 &   0.0174 &   0.0533 &    0.121 & 0.0863 &   0.0234 &    0.124 &   0.0341 &     0.13 &    0.154 & 0.199\\
+ 1992 &    0.152 &   0.0506 &   0.0161 &   0.0353 &   0.0918 & 0.127 &   0.0155 &  0.00253 &   0.0226 &  0.00245 &    0.015 & 0.0916\\
+ 1993 &   0.0116 &   0.0588 &    0.037 &        0 &        0 & 0 &        0 &        0 &    0.143 &    0.111 &        0 &      0.5\\
+ 1994 &        0 &        0 &        0 &       NA &        0 & NA &       NA &       NA &       NA &       NA &       NA &       NA\\
+ 1995 &        1 &       NA &       NA &       NA &       NA & NA &       NA &       NA &       NA &       NA &       NA &       NA\\
+ 1996 &       NA &       NA &       NA &       NA &       NA & NA &       NA &       NA &       NA &       NA &       NA &       NA\\
+\hline
+ 2006 &       NA &       NA&        NA &       NA&        NA& NA&        NA &        0&   0.00277&         0 &        0 &   0.0562\\
+ 2007 &    0.107 &   0.0556&    0.0896 &    0.248&    0.0259& 0.0503&    0.0483 &   0.0417&      0.31&    0.0227 &    0.234 & 0.115\\
+ 2008 &     0.67 &     0.39&     0.306 &    0.185&     0.143& 0.233&    0.0704 &    0.308&     0.123&    0.0769 &    0.121 & 0.131\\
+ 2009 &    0.331 &    0.357&     0.111 &    0.134&    0.0959& 0.339&     0.112 &    0.376&     0.221&     0.207 &    0.297 & 0.0667\\
+ 2010 &    0.259 &    0.394&     0.714 &    0.167&     0.667& 0&         0 &        1&         1&         1 &        1 &       NA\\
+ 2011 &       NA &       NA&        NA &       NA&        NA& NA&        NA &       NA&        NA&        NA &       NA &       NA\\
+\hline
+\end{tabular}
+\end{center}
+} % font size
+\end{sidewaystable}
+
+
+
+Early versions (through svn revision 2761) of \TT\ attempted to
+correct the effortless recapture problem by shifting the observed
+recapture position to an
+adjacent computational element. The strategy is fairly effective
+provided there is nearby fishing effort, but ignores the problem of
+misspecified dates.
+
+Current versions (post revision 2830) set a flag in the recapture
+record as it is read into the software to indicate whether fishing
+effort is recorded for the tag return. There are three options for
+accommodating effortless recaptures controlled by Control Flag 53:
+\begin{center}
+\begin{tabular}{cp{4.0in}}
+\hline
+Flag 53 & Action\\
+\hline
+ 0 & Recaptures without reported fishing effort are ignored.\\
+ 1 & Fishing mortality set to value required to produce the observed
+tag recaptures given the population density of tags. If $C = F \times
+P$, then $F = C/P$. (Not currently working for Baranov catch equation,
+flag 27.)\\
+ 2 & Fishing effort assumed to equal average fishing effort for fleet.
+$F = q_f\times \bar{E_f}$.\\
+\hline
+\end{tabular}
+\end{center}
+
+These options have several effects on the model as shown Table
+\ref{tab:flag2753}.
+The larger number of recaptures in the model cause
+the negative log likelihood to be larger. Estimates of natural
+mortality ($\widehat{M}$) are slightly lower and estimates of
+Japanese purse seine catchability ($\hat{q}_{jpps}$) are slightly
+higher.
+The results with respect to Control Flag 27 are discussed elsewhere.
+(For the purposes of this comparison, the models were fit using
+normalized fishing effort and assuming uniform reporting rates over
+all fleets equal to 1.0.)
+
+
+%\subsection*{Number of Seasons}
+%\subsection*{Reporting Rates}
+
+
+{\baselineskip=\normalbaselineskip
+\section*{Control Flags}
+The control flags, usually known as {\tt ipars} control some of the
+details of the model structure, such as the likelehood, ADI
+parameters, and which parameters are estimated (ie ``active''). The
+listing below documents all of the {\tt ipars}. The default value for
+most flags is $0$ unless noted below.
+%\begin{list}{\bfseries\upshape ipar}{
+\begin{list}{}{
+  \setlength{\labelwidth}{1.0in}
+  \setlength{\labelsep}{0.25in}
+  \setlength{\leftmargin}{1.0in}
+% \setlength{\rightmargin}{1.5in}
+  \setlength{\itemsep}{0.0ex plus 0.2ex}
+  \setlength{\parsep}{0.5ex plus 0.2ex}
+  }
+  \input iparname.tex
+\end{list}
+}
+
+\clearpage
+\section*{References to \TT}
+{\parindent=0cm \small
+\everypar={\hangindent=2em \hangafter=1}\par
+%\doublespacing
+
+Adam, M.S., Sibert J., 2002. Population dynamics and movements of
+skipjack tuna (Katsuwonus pelamis) in the Maldivian fishery: analysis
+of tagging data from an advection-diffusion-reaction model. Aquat.
+Living Resour. 15: 13-23.
+
+Adam, M. S. and J. Sibert. 2004. Use of neural networks with
+advection-diffusion-reaction models to estimate large-scale movements
+of skipjack tuna from tagging data. SOEST Publication 04-03, JIMAR
+Contribution 04-350, 31 pp.
+
+Bills, P. J. and J. Sibert, 1997. Design of tag-recapture experiments for estimating yellowfin tuna stock dynamics, mortality, and fishery interactions. SOEST Publication 97-05, JIMAR Contribution 97-313, 80 pp.
+
+Sibert, J., J. Hampton, D. Fournier, and P. J. Bills. 1999. An
+advection-diffusion-reaction model for the estimation of fish movement
+parameters from tagging data, with application to skipjack tuna
+(Katsuwonus pelamis). Can. J. Fish. Aquat. Sci. 56: 925-938. 
+
+Sibert, J., Hampton, J., 2003. Mobility of tropical tunas and the
+implications for fisheries management. Marine Policy 27: 87-05.
+\par}
+
+\section*{Model Equations}
+et $\widetilde N_{xytc}$ represent the density of tagged tunas (numbers of
+tagged fish per unit surface area) at point $(x,y)$ in the ocean at time $t$
+ of tag release cohort $c$.
+The aggregate density of tagged tunas (or simply, tags)
+from all cohorts released up to
+time $t$ is given by
+\begin{equation}
+ N_{xyt} = \sum_{c=1}^{C_t} \widetilde N_{xytc}.
+\end{equation}
+
+Assuming that the tag cohorts move independently,
+the aggregate tag density satisfies
+the following partial differential equation
+\begin{equation}
+{\partial N \over\partial t}={\partial\over\partial x}\left( D {\partial N \over\partial x}\right) +
+                 {\partial\over\partial y}\left( D {\partial N \over\partial y}\right)
+                           - {\partial\over\partial x}(u N )
+                           - {\partial\over\partial y}(v N )-Z N.
+\label{eqn:adrm}
+\end{equation}
+Tuna movement patterns are frequently
+represented by arrows on maps, often with months or seasons specified,
+to suggest the general trend of population movement at different
+times and places.
+This practice implies that fish movement may be time and site specific. 
+Consistent with this possibility, in our model,
+``regions'' are defined as subdivisions of the model domain over
+which the movement parameters $(uvD)$ are constant, and ``seasons''
+are defined as periods of time during which the parameters within a region are
+constant.  Let $R_{ij}$ be a matrix that contains the region number
+for each model cell indexed by $(i,j)$ and $S^n$ be a vector that
+contains the season for each time step indexed by $n$.
+In other words, $R_{ij}$ maps the model domain into specified regions
+and $S^n$ maps calendar time to seasons.
+The model parameters are
+specified at each grid point by the following equations:
+\def\umat{\hbox{\bf u}}
+\def\vmat{\hbox{\bf v}}
+\def\Dmat{\hbox{\bf D}}
+\begin{eqnarray}
+   u_{ij}^n& = & \umat_{R_{ij}S^n}\nonumber\\
+   v_{ij}^n& = & \vmat_{R_{ij}S^n}\\
+   D_{ij}^n& = & \Dmat_{R_{ij}S^n}\nonumber
+\end{eqnarray}
+where \umat, \vmat\ and \Dmat\ are matrices of parameters to be estimated,
+collectively referred to as movement ``patterns'' or ``hypotheses''.
+
+Total mortality, $Z$, is separated into two components in a conventional manner by
+\begin{equation}
+  Z_{ij}^n = M + \sum_fF_{ijf}^n
+\end{equation}
+where $F_{ijf}^n$ is the mortality due to
+fishing by fishing fleet $f$ operating in computational element $(i,j)$
+during time step $n$
+and $M$ is mortality due to other causes or ``natural'' mortality.
+Natural mortality is assumed be constant at all places over the
+period of time that the tagged fish are at liberty.
+Fishing mortality is assumed to be a simple function of observed
+fishing effort
+\begin{equation}
+  F_{ijf}^n = q_f\times E_{ijf}^n
+\label{eqn:fmort} 
+\end{equation}
+
+\def\tobs{{C_{ijf}^n}}
+\def\tpred{{{\widehat{C}}_{ijf}^n}}
+\def\rr{\beta_f}
+
+The predicted number of reported tags during one month is given by
+\begin{equation}
+\tpred =  \rr F_{ijf}^n N_{ij}^n
+\label{eqn:catch} 
+\end{equation}
+where $\rr$ is the reporting rate,
+i.e., the proportion of tags captured by fleet $f$
+returned with usable recapture information
+and  $N_{ij}^n$ satisfies equation \ref{eqn:adrm} for time step~$n$.
+
+Parameters are estimated by maximum likelihood using AD Model Builder
+(Fournier, at al 2011).
+Observed numbers of tag returns, $\tobs$, are related to
+predicted numbers of tag returns, $\tpred$, by a Poisson likelihood function.
+\begin{equation}\label{eqn:like} 
+L(\umat, \vmat, \Dmat, q, M\,|\,\tobs,E_{ijf}^n) = \prod_{ijnf}\Bigg[{ {(\tpred)^\tobs}e^{-\tpred}\over\tobs !}\Bigg]
+\end{equation}
+
+

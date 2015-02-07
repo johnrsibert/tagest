@@ -1,0 +1,6 @@
+# definition file for lower-right triangle in quilt map
+#
+-
+-0.5 -0.5 M
+ 0.5  0.5 D
+ 0.5 -0.5 D

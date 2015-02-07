@@ -1,0 +1,1 @@
+g++ -c -O -I. -I /home/jsibert/admodel/include -D__GNUDOS__ -DOPT_LIB -D__REGIONAL__ $1
