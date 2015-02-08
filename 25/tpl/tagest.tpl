@@ -1451,7 +1451,7 @@ TOP_OF_MAIN_SECTION
   TRACE(__cplusplus)
 
   // posix:
-  TTRACE(sysconf(_SC_NPROCESSORS_CONF),sysconf(_SC_NPROCESSORS_ONLN))
+  //TTRACE(sysconf(_SC_NPROCESSORS_CONF),sysconf(_SC_NPROCESSORS_ONLN))
 
   // gnu extention:
   //TTRACE(get_nprocs_conf(),get_nprocs())

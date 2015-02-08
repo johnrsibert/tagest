@@ -5,7 +5,7 @@ if [ $# -lt 2 ]; then
    exit 1
 fi
 
-export MOVEMODHOME=$HOME/movemod/25
+export MOVEMODHOME=../../25
 export SCRIPTDIR=$MOVEMODHOME/scripts
 echo $SCRIPTDIR
 
@@ -25,9 +25,10 @@ echo $2 > ./$WD/file_nam.tmp
 
 ##echo "creating .cst file; close jni graphics window to continue"
 ##/home/jsibert/movemod/25/scripts/makecst.sh $2
+$SCRIPTDIR/makecst.sh $2
 $SCRIPTDIR/prn2gmt.sh $2
 $MOVEMODHOME/landmask2gmt $2
-$SCRIPTDIR/gridmap $2
+# $SCRIPTDIR/gridmap $2
 # run below separate after check the scripts.
 #$SCRIPTDIR/tagtab $2
 #$SCRIPTDIR/recapmap.sh $1 $2

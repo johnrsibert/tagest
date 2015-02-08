@@ -26,59 +26,57 @@ SHORELINE=154/139/98
 REG_COLOR=0/128/0
 DOM_COLOR=$REG_COLOR
 
-gmtset ANOT_FONT_SIZE_PRIMARY 12 BASEMAP_TYPE fancy PAPER_MEDIA letter+ PAGE_ORIENTATION portrait HEADER_FONT_SIZE 16 HEADER_FONT 1 MEASURE_UNIT inch PLOT_DEGREE_FORMAT dddF
-
-#psbasemap -B10:."MOVEMOD Regions": -U $REGION $PROJECTION -V -K > $EPS
-#psbasemap -B10 $REGION $PROJECTION -G190/255/255 -V -K > $EPS
-#psbasemap -B10g5 $REGION $PROJECTION -G190/255/255 -V -K > $EPS
-# reasonable presentation of model domain
-#psbasemap -B10g5 $REGION $PROJECTION -V -K > $EPS
-# for messy 0.5 deg grid
-#psbasemap -B10f5g0.5 $REGION $PROJECTION -V -K > $EPS
+#gmtset ANOT_FONT_SIZE_PRIMARY 12 BASEMAP_TYPE fancy PAPER_MEDIA letter+ PAGE_ORIENTATION portrait HEADER_FONT_SIZE 16 HEADER_FONT 1 MEASURE_UNIT inch PLOT_DEGREE_FORMAT dddF
+gmt gmtset ANOT_FONT_SIZE_PRIMARY 12 BASEMAP_TYPE fancy PAGE_ORIENTATION landscape HEADER_FONT_SIZE 16 HEADER_FONT 1 MEASURE_UNIT inch PLOT_DEGREE_FORMAT dddF
 
 # draw fancy base map with messy 1 deg grid
-#psbasemap -B10f5g1:.$1: $REGION $PROJECTION -V    -K > $EPS
+gmt psbasemap -B10f5g1:.$1: $REGION $PROJECTION -V    -K > $EPS
 # draw fancy base map with messy 1/2 deg grid
-psbasemap -B10f5g0.5:.$1: $REGION $PROJECTION -V    -K > $EPS
+# psbasemap -B10f5g0.5:.$1: $REGION $PROJECTION -V    -K > $EPS
+
 #draw coastlines with wet and dry areas filled
-pscoast $REGION $PROJECTION -Di -G$DRY_COLOR -W$SHORELINE -V -O -K >> $EPS
-
-#draw FAD sets
-FADSETS=/home/jsibert/movemod/SPC2011/FADsets/fadsets.csv
-#awk -F, '{print $5,$6,$7}' $FADSETS  | psxy $REGION $PROJECTION -Sp -V -O -K  >> $EPS
-#awk -F, '{if ( ($1>=2006) && ($1<=2010) ){print $5,$6,$7}}' $FADSETS | psxy -Csettype.cpt $REGION $PROJECTION -Sp -V -O -K >> $EPS
-
+#gmt pscoast $REGION $PROJECTION -Di -G$DRY_COLOR -W$SHORELINE -V -O    >> $EPS
+gmt pscoast $REGION $PROJECTION -Di -G$DRY_COLOR  -Wfaint,$SHORELINE -V -O -K >> $EPS
 
 #draw region boundaries
-psxy $1_regions.dat  $REGION $PROJECTION -Ap -M -W1p/$REG_COLOR -V -O -K >> $EPS
+gmt psxy $1_regions.dat  $REGION $PROJECTION -Ap -Wthick,$REG_COLOR -V -O -K >> $EPS
 
 #process the prn file to plot the landmask
-echo "prn2gmt.sh " ./$1".prn"
-~/movemod/25/scripts/prn2gmt.sh ./$1.prn | psxy $REGION $PROJECTION -Sc0.03125i -G$SHORELINE -V -O -K >> $EPS
-
-#draw EEZs
-#psxy /home/jsibert/movemod/SPC2011/scripts/eznew.asc    $REGION $PROJECTION -A -M -W$EEZ_COLOR -O -K >> $EPS
-#psxy /home/jsibert/movemod/SPC2011/scripts/eznew_am.asc $REGION $PROJECTION -A -M -W$EEZ_COLOR -O -K >> $EPS
-
+#echo "prn2gmt.sh " ./$1".prn"
+#~/movemod/25/scripts/prn2gmt.sh ./$1.prn | psxy $REGION $PROJECTION -Sc0.03125i -G$SHORELINE -V -O -K >> $EPS
+#
+##draw EEZs
+##psxy /home/jsibert/movemod/SPC2011/scripts/eznew.asc    $REGION $PROJECTION -A -W$EEZ_COLOR -O -K >> $EPS
+##psxy /home/jsibert/movemod/SPC2011/scripts/eznew_am.asc $REGION $PROJECTION -A -W$EEZ_COLOR -O -K >> $EPS
+#
 # process the .pos file to show shifting
-echo "./pos2gmt.sh " $1".pos"
-#./pos2gmt.sh $1.pos | psxy $REGION $PROJECTION -Svs -W255/0/0 -V -O -K >> $EPS
-./pos2gmt.sh $1.pos | psxy $REGION $PROJECTION -A -M -Wred -V -O -K >> $EPS
-
-
+#echo "./pos2gmt.sh " $1".pos"
+#./pos2gmt.sh $1.pos | psxy $REGION $PROJECTION -A -Wred -V -O -K >> $EPS
+#
+#
 # draw region numbers 
-pstext $1_region_numbers.dat $REGION $PROJECTION  -G$REG_COLOR -V -O -K >> $EPS
+gmt pstext $1_region_numbers.dat $REGION $PROJECTION  -F+f,,$REG_COLOR -V -O -K >> $EPS
+#
+# draw domain boundary
+gmt psxy $1_domain.dat  $REGION $PROJECTION -Ap -Wfat,$REG_COLOR -V -O    >> $EPS
+#psxy $REGION $PROJECTION -Ap -L -Wfat,$REG_COLOR -V -O <<EOF   >> $EPS
+#>
+#115.00 -20.00
+#115.00 15.00
+#>
+#195.00 15.00
+#195.00 -20.00
+#EOF
 
-#draw domain boundary
-psxy $1_domain.dat  $REGION $PROJECTION -Ap -M -W3p/$REG_COLOR -V -O    >> $EPS
 
-#draw coastlines with wet areas open (to cover up the ends of the region and EEZ boundaries)
-#pscoast $REGION $PROJECTION -Di -G$DRY_COLOR  -W$SHORELINE -V -O      >> $EPS
+
+##draw coastlines with wet areas open (to cover up the ends of the region and EEZ boundaries)
+##pscoast $REGION $PROJECTION -Di -G$DRY_COLOR  -W$SHORELINE -V -O      >> $EPS
 
 #extract coastline data for gmt2cst
-pscoast $REGION $PROJECTION -Di -W -M > $MAP.gmt
-
-#rm .gmt*
+gmt pscoast $REGION $PROJECTION -Di -W > $MAP.gmt
+#
+#rm  -v .gmt*
 gv $EPS &
-ps2raster -V -A -Tg -E300 $EPS
-eog $MAP.png &
+#ps2raster -V -A -Tg -E300 $EPS
+#eog $MAP.png &

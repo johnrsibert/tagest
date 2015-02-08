@@ -99,6 +99,7 @@ rtagmove$(EXE) \
 obstac$(EXE) \
 walk$(EXE) \
 makemap$(EXE) \
+landmask2gmt$(EXE) \
 tpl
 
 neural_net: \
