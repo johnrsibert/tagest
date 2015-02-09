@@ -19,4 +19,3 @@ clean:
 	rm -fv *_regions.dat
 	rm -fv *_domain.dat
 	rm -fv *_region_numbers.dat
-	rm -rv *.cst

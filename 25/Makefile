@@ -245,11 +245,12 @@ clean:
 	@rm -vf rtagmove25b$(EXE)
 	@rm -vf readERSSTv2File$(EXE)
 	@rm -vf makemap$(EXE)
+	@rm -fv rtagmove$(EXE)
+	@rm -fv landmask2gmt$(EXE)
 	@rm -vf gmon.out
 	@rm -vf distance$(EXE)
 	@rm -vf obstac$(EXE)
 	@rm -vf walk$(EXE)
-	@make -C test clean
 	@make -C tpl clean
 	@make -C docs/API clean
 
