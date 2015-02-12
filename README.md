@@ -34,7 +34,7 @@ version in the parent directory.
 Most directories and subdirectories have a Makefile, so it is usually
 only necessary to run make.
 
-A provisional "work in progress" user manual can be found at 
+A provisional "work in progress" user manual is available at 
 25/docs/manuals/TagestUserMan.pdf.
 
 ####25
@@ -60,11 +60,11 @@ implemented using variable types and the AUTODIF syntax
 Code base with user written adjoint code, highly optimized to run on
 slower, memory deficient computers. At one time, it could be compiled
 under both both windows and linux. It is not compliant to current C++
-standards. This` code produced the results in Sibert and Hampton (2003).
+standards. This code produced the results in Sibert and Hampton (2003).
 
 ####jnigraphics
 Java native mode interface graphics to implement the tagmove
-visualizations.
+visualizations. Developed and maintained by Johnoel Ancheta.
 
 ####example
 A worked example using data from the Skipjack Survey and Assessment
