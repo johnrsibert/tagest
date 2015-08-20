@@ -91,6 +91,7 @@ void set_ipar_names(ipar_t& t)
   t.set_name(50, "0=> use 60 in all of deltax; 1=> create spherical coords");
 
   t.set_name(51, "1 => normalize fishing effort to fleet means");
+    t[51] = 1;
   t.set_name(52, "DO NOT EDIT; value set automagically (1 => catchabilities have been adjusted to normalized effort)");
   t.set_name(53, "include effortless recaps in Z: 0 => omit; 1 => f = inverse catch equation; 2 => f= q\\bar{E}");
   t.set_name(54, "reserved for possible use in effortless recap handling");
