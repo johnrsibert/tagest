@@ -5,7 +5,7 @@
 # renames cst file
 # close graphics window to finish script
 if [ $# -lt 1 ]; then
-   echo "Usage: gmt2cst <prn file> <sw longitude> <sw latitude> <m>  <n>"
+   echo "Usage: makecst <prn file> <sw longitude> <sw latitude> <m>  <n>"
    echo "<prn file>: "
    echo "<sw longitude>: southwest corner longitude with range [0, 360) degress"
    echo "<sw latitude>: southwest corner latitude with range [-90, -90] degrees"
@@ -32,6 +32,8 @@ gmtfile=$fileroot.gmt
 pscoast $REGION $PROJECTION -V -Di -W -M > $gmtfile
 
 #convert gmt output to jnigraphics format
+# Note: gmt2cst must be on your PATH
 gmt2cst $gmtfile $swlon $swlat $M $N
+#/home/other/tagest/jnigraphics/jnigraphics/gmt2cst $gmtfile $swlon $swlat $M $N
 mv -fv $fileroot.gmt.cst $fileroot.cst 
 echo "finished"
