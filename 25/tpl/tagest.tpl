@@ -1322,7 +1322,7 @@ FUNCTION void compute_likelihood(dvar_matrix& release, year_month& date, const i
 REPORT_SECTION
   #undef REPORT
   #define REPORT(object) #object << "\n" << object << '\n'
-  clogf << "in report" << endl;
+  clogf << "In REPORT_SECTION." << endl;
   TTRACE(ifn,iexit)
   TRACE(current_phase())
   TTRACE(last_phase(),sd_phase())
@@ -1339,14 +1339,17 @@ REPORT_SECTION
   report << "\nFinished time: " << ctime(&end_time)
          << "Total time for estimation: " << total_elapsed_time << " seconds." << endl
          << "Total time for estimation: " << (total_elapsed_time/60.0) << " minutes." << endl;
+
+  compute_obrien_sigma();
+  year_month final_date = param.get_tr_date(param.nrelease) + param.nmonth;
+  compute_average_fishing_mortality(param.start_date,final_date);
   report << REPORT(nvar)
-         << REPORT(mort)
-         << REPORT(q)
+         << REPORT(param.mort)
+         << REPORT(param.q)
          << REPORT(obrienSigma)
          << REPORT(average_fishing_mortality)
          << REPORT(total_fishing_mortality)
          << REPORT(total_domain_mortality)
-         << REPORT(nb_par)
          << setprecision(15)
          << REPORT(likelihood)
          << REPORT(likelihood.gmax)
@@ -1363,7 +1366,8 @@ REPORT_SECTION
             report << REPORT(min_D) << endl;
          if (param.m_ipar(85) == 2)
             report << REPORT(gamma) << endl;
-
+         if (param.m_ipar(11) >=4)
+            report << REPORT(nb_par) << endl;
   report << "average_fishing_mortality: " << endl;
   for (int fleet = 1; fleet <= param.nfleet; fleet++)
   {
@@ -1460,6 +1464,7 @@ TOP_OF_MAIN_SECTION
 
 
 FINAL_SECTION
+  clogf << "In FINAL_SECTION; cleaning up pointers." << endl;
   recaptype_vector::deleteInstance();
   indexed_regional_fishery_record::deleteInstance();
   coff_t<dvar3_array,dvar_matrix,dvar_vector,dvariable>::deleteInstance();
