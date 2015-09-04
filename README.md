@@ -1,8 +1,8 @@
 <center>Movemod</center>
 ======
-###<center>*The tagest-tagmove software suite for spatially resolved analysis fish tag data*</center>
+### <center>*The tagest-tagmove software suite for spatially resolved analysis fish tag data*</center>
 
-##System requirements
+## System requirements
 * linux operating system on 64bit architecture (Previous versions of
   this software were perfectly functional on 32bit archecture under
   both linux and Windows running cygwin, so a port to Windows is
@@ -18,7 +18,7 @@ for instance. (Some incompatibilities between GMT versions 5.1.x and
 4.5.x have been recently noted. Current scripts were developed for
 4.5, but some have been ported to 5.1.2.)
 
-##Directory Structure
+## Directory Structure
 Some of this code has been under development since 1989, long before the
 widespread adoption of version control systems. An *ad hoc* directory
 numbering system was used to keep separate versions. The files here on
@@ -37,7 +37,7 @@ only necessary to run make.
 A provisional "work in progress" user manual is available at 
 25/docs/manuals/TagestUserMan.pdf.
 
-####25
+#### 25
 The current "production" version, developed largely to analyze 
 tagging data from the current SPC tagging project (PTTP).
 This code is a conversion of the code in directory 21 into an ADMB application
@@ -45,18 +45,18 @@ using template classes to implement different code for constant (eg
 double) and variable (eg dvariable) objects. Eun Jung Kim's models of
 FAD attraction and stickiness are implemted here.
 
-####25-alpha
+#### 25-alpha
 Sibert's attempt to create satisfactory alternatives for handling errors
 in reporting effort, missing effort and errors in reporting recaptures.
 A dead end.
 
-####26
+#### 26
 Revision of the directory 25 code without template classes and the
 nerural network classes. Only the movemod simulator as been tested. It
 implemented using variable types and the AUTODIF syntax
 `gradient_structure::set_NO_DERIVATIVES();`
 
-####21
+#### 21
 Code base with user written adjoint code, highly optimized to run on
 slower, memory deficient computers. At one time, it could be compiled
 under both both windows and linux. It is not compliant to current C++
@@ -66,7 +66,7 @@ standards. This code produced the results in Sibert and Hampton (2003).
 Java native mode interface graphics to implement the tagmove
 visualizations. Developed and maintained by Johnoel Ancheta.
 
-####example
+#### example
 A worked example using data from the Skipjack Survey and Assessment
 Programme conducted by the South Pacific Commission between 1977 and 1987. 
 The national identities in the tag return and fishing effort
@@ -74,7 +74,7 @@ records have been obfuscated out of ``confidentiality'' concerns.
 
 To build a functional run directory, type make at the command prompt.
 
-##Contributors
+## Contributors
 This project began in about 1989. Over the years,
 a number of collaborators have contributed code and ideas.
 
@@ -88,12 +88,12 @@ a number of collaborators have contributed code and ideas.
 * Richard Bailey
 * Pierre Kleiber
 
-##Financial Support
+## Financial Support
 * Food and Agricultural Orangization of the United Nations
 * Secretariat of the Pacific Commnity
 * Pelagic Fisheries Research Program, University of Hawaii at Manoa
 
-##Publications
+## Publications
 Sibert, J.R., Hampton, J., Fournier, D., 1996. Skipjack movement and
 fisheries interaction in the Western Pacific. Second FAO Expert
 Consultation on Interactions of Pacific Tuna Fisheries, Shimizu,
