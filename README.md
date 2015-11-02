@@ -4,7 +4,7 @@
 
 ## System requirements
 * linux operating system on 64bit architecture (Previous versions of
-  this software were perfectly functional on 32bit archecture under
+  this software were perfectly functional on 32bit architecture under
   both linux and Windows running cygwin, so a port to Windows is
   feasible. But why bother?)
 * [g++ compiler](https://gcc.gnu.org/) version 4.8 or greater.

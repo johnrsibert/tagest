@@ -8,8 +8,9 @@ Code for halflife computation
 #include <jnigraphics2.h>
 #include "trace.h"
 
+#include <sstream>
 #include <ostream>
-using std::ostrstream;
+using std::ostringstream;
 
 #ifdef __BCG_SOLVER__
   #include "linbcg.h"
@@ -128,7 +129,7 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
       for (int j = 1; j <= trow; j++)
       {
         ij ++;
-        ostrstream rss(rname,80);
+        ostringstream rss;//(rname,80);
         rss << setw(2) << ij << ends;
         scm.region.title = rname;
         jni->addSquareRegion(scm, mt_layout(ij));
@@ -139,7 +140,7 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
     ivector at_layout(1, 1);
     jni->addGridLayout(1, 1, at_layout, average_tab);
     average_plot = at_layout(1);
-    scm.region.title = "";
+    scm.region.title = (char*)"";
     jni->addSquareRegion(scm, average_plot);
 
     jni->layoutAll(800,600);
@@ -238,7 +239,7 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
     {
       int numMonthSeason = get_season(date);
       char sbuf[80];
-      ostrstream ss(sbuf,80);
+      ostringstream ss; //(sbuf,80);
       ss << " Fit p" << setw(2) << setfill('0') << hex << m_ipar[8]
          << ": " << date
          << ", Season " << numMonthSeason
@@ -275,7 +276,7 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
         jni->drawStatusBar(adstring(sbuf));
 
         char jbuf[80];
-        ostrstream jss(jbuf,80);
+        ostringstream jss; //(jbuf,80);
       #ifdef unix
         jss << "jpeg/"
       #else
