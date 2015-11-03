@@ -100,6 +100,7 @@ obstac$(EXE) \
 walk$(EXE) \
 makemap$(EXE) \
 landmask2gmt$(EXE) \
+rhalflife$(EXE) \
 tpl
 
 neural_net: \

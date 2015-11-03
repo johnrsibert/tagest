@@ -20,6 +20,7 @@ using std::ostringstream;
   extern setsaveinterflag interflag;
   extern intersavetype *isp;
 #endif
+extern indexed_regional_fishery_record global_irfr;
 
 void halfcomp(const dmatrix& density, const imatrix map, dvector& sum0, 
               dvector& prev_sum, dvector& cur_sum, 
@@ -123,15 +124,16 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
     scm.legend.increment = 10;
     scm.legend.decimals = 0;
     int ij = 0; 
-    char rname[80];
     for (int i = 1; i <= tcol; i++)
     {
       for (int j = 1; j <= trow; j++)
       {
         ij ++;
-        ostringstream rss;//(rname,80);
-        rss << setw(2) << ij << ends;
-        scm.region.title = rname;
+        ostringstream rss;
+        //rss << "Start Month " << ij;
+        //rss << "Start Month " << setw(2) << setfill('0') << ij;
+        rss << ij;
+        scm.region.title = (char*)rss.str().c_str();
         jni->addSquareRegion(scm, mt_layout(ij));
       }
     }
@@ -143,7 +145,7 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
     scm.region.title = (char*)"";
     jni->addSquareRegion(scm, average_plot);
 
-    jni->layoutAll(800,600);
+    jni->layoutAll(); //800,600);
   }
   //char junk;
   //cin >> junk; 
@@ -198,12 +200,23 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
   dmatrix average_half_life(1, m, jlb, jub); average_half_life.initialize();
   ivector ivEffortOccured(1, nfleet); ivEffortOccured.initialize();
 
+  /** Tag returns for which there IS reported effort).*/
+  d3_array Recaps1 = make_d3_array(0, nfleet, 1, m, jlb, jub);
+  Recaps1.initialize();
+  /** Tag returns for which there is NO reported effort).*/
+  d3_array Recaps0 = make_d3_array(0, nfleet, 1, m, jlb, jub);
+  Recaps0.initialize();
+
   d3_array d3aEffort = make_d3_array(0, nfleet, 1, m, jlb, jub);
   d3aEffort.initialize();
-  d3_array d3aFishMort1 = make_d3_array(0, nfleet, 1, m, jlb, jub);
-  d3aFishMort1.initialize();
-  d3_array d3aFishMort0 = make_d3_array(0, nfleet, 1, m, jlb, jub);
-  d3aFishMort0.initialize();
+  d3_array FishMort1 = make_d3_array(0, nfleet, 1, m, jlb, jub);
+  FishMort1.initialize();
+  d3_array FishMort0 = make_d3_array(0, nfleet, 1, m, jlb, jub);
+  FishMort0.initialize();
+
+  d3_array d3aRelease = make_d3_array(0, nfleet, 1, m, jlb, jub);
+  d3aRelease.initialize();
+
   HERE
 #ifdef __BCG_SOLVER__
   linbcg bcg(*this);
@@ -238,7 +251,7 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
     for (year_month date = start_date; date <= final_date; date++)
     {
       int numMonthSeason = get_season(date);
-      char sbuf[80];
+      //char sbuf[80];
       ostringstream ss; //(sbuf,80);
       ss << " Fit p" << setw(2) << setfill('0') << hex << m_ipar[8]
          << ": " << date
@@ -273,9 +286,9 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
 
       if (graphics_on)
       {
-        jni->drawStatusBar(adstring(sbuf));
+        jni->drawStatusBar((char*)ss.str().c_str());
 
-        char jbuf[80];
+        //char jbuf[80];
         ostringstream jss; //(jbuf,80);
       #ifdef unix
         jss << "jpeg/"
