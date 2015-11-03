@@ -79,11 +79,13 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
   jnigraphics2* jni = NULL;
   TRACE(jni)
 
-  const int ntabs = 2;
+  const int ntabs = 3;
   ivector tab_list(1,ntabs);
   ivector mt_layout;
+  ivector td_layout;
   int monthly_tab = 0;
   int average_tab = 0;
+  int density_tab = 0;
   int average_plot = 0;
 
   TRACE(graphics_on)
@@ -100,8 +102,9 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
     jni->addTabs(ntabs, tab_list);
     monthly_tab = tab_list(1);
     average_tab = tab_list(2);
+    density_tab = tab_list(3);
 
-    jni->setTabTitle("Start Month",monthly_tab);
+    jni->setTabTitle("Halflife by Start Month",monthly_tab);
     int tcol = 4;
     int trow = 3;
     if (m > n)
@@ -111,6 +114,8 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
     }
     mt_layout.allocate(1, trow*tcol);
     jni->addGridLayout(trow, tcol, mt_layout, monthly_tab);
+    td_layout.allocate(1, trow*tcol);
+    jni->addGridLayout(trow, tcol, td_layout, density_tab);
 
     jni->addStatusBar();
 
@@ -144,6 +149,31 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
     average_plot = at_layout(1);
     scm.region.title = (char*)"";
     jni->addSquareRegion(scm, average_plot);
+
+    jni->setTabTitle("Tag Density [0,1]",density_tab);
+    squareregiondef scd(m, n);
+    scd.region.dx = deltax;
+    scd.region.dy = deltay;
+    scd.region.setGridMap(gridmap);
+    scd.region.cstfile = coastline_file;
+    scd.legend.min = 0.0;
+    scd.legend.max = 1.0;
+    scd.legend.increment = 0.1;
+    scd.legend.decimals = 1;
+    ij = 0; 
+    for (int i = 1; i <= tcol; i++)
+    {
+      for (int j = 1; j <= trow; j++)
+      {
+        ij ++;
+        ostringstream rss;
+        //rss << "Start Month " << ij;
+        //rss << "Start Month " << setw(2) << setfill('0') << ij;
+        rss << ij;
+        scd.region.title = (char*)rss.str().c_str();
+        jni->addSquareRegion(scd, td_layout(ij));
+      }
+    }
 
     jni->layoutAll(); //800,600);
   }
@@ -301,6 +331,7 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
                     << ".jpg" << ends;
 
         jni->drawSquareRegion(half_life, mt_layout(start_month));
+        jni->drawSquareRegion(tags, td_layout(start_month));
 
         if ( !(jni->paintAll()) )
           exit(0);
