@@ -43,15 +43,17 @@ endif
     OS=linux
   endif
 
-  UNAME_M=$(shell uname -m)
-  ifeq ($(UNAME_M),x86_64)
-    UNAME_M=amd64
-  else
-    UNAME_M=i386
+  ifneq ($(OS),darwin)
+    UNAME_M=$(shell uname -m)
+    ifeq ($(UNAME_M),x86_64)
+      UNAME_M=/amd64
+    else
+      UNAME_M=/i386
+    endif
   endif
 
   CFLAGS = -m64 -Wall $(CC_OPT)  -Isrc -I$(ADMB_HOME)/include -I$(ADMB_HOME)/contrib/include -I$(JNIGRAPHICS_PATH) -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/$(OS) -D__GNUDOS__ -Dlinux -DUSE_LAPLACE -UOLD_DO_KLUDGE 
-  TAGMOVE_LFLAGS=-L$(JNIGRAPHICS_PATH) -L$(JAVA_HOME)/jre/lib/$(UNAME_M)/server -ljnigraphics3 -ljvm
+  TAGMOVE_LFLAGS=-L$(JNIGRAPHICS_PATH) -L$(JAVA_HOME)/jre/lib$(UNAME_M)/server -ljnigraphics3 -ljvm
  
   BIN_DIR = .
   EXE =
