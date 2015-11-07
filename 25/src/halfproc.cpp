@@ -126,8 +126,9 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
     scm.region.cstfile = coastline_file;
     scm.legend.min = 0.0;
     scm.legend.max = 12.0;
-    scm.legend.increment = 10;
+    scm.legend.increment = 1;
     scm.legend.decimals = 0;
+    scm.region.title=(char*)"Start Month 00";
     int ij = 0; 
     for (int i = 1; i <= tcol; i++)
     {
@@ -136,9 +137,11 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
         ij ++;
         ostringstream rss;
         //rss << "Start Month " << ij;
-        //rss << "Start Month " << setw(2) << setfill('0') << ij;
-        rss << ij;
+        rss << "Start Month " << setw(2) << setfill('0') << ij << ends;
+        //rss << ij;
+        TTRACE(scm.region.title,rss.str().c_str())
         scm.region.title = (char*)rss.str().c_str();
+        TTRACE(scm.region.title,rss.str().c_str())
         jni->addSquareRegion(scm, mt_layout(ij));
       }
     }
@@ -147,8 +150,17 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
     ivector at_layout(1, 1);
     jni->addGridLayout(1, 1, at_layout, average_tab);
     average_plot = at_layout(1);
-    scm.region.title = (char*)"";
-    jni->addSquareRegion(scm, average_plot);
+    squareregiondef sca(m, n);
+    sca.region.dx = deltax;
+    sca.region.dy = deltay;
+    sca.region.setGridMap(gridmap);
+    sca.region.cstfile = coastline_file;
+    sca.region.title = (char*)"--- Average Halflife ---";
+    sca.legend.min = 0.0;
+    sca.legend.max = 24.0;
+    sca.legend.increment = 2;
+    sca.legend.decimals = 0;
+    jni->addSquareRegion(sca, average_plot);
 
     jni->setTabTitle("Tag Density [0,1]",density_tab);
     squareregiondef scd(m, n);
@@ -168,9 +180,12 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
         ij ++;
         ostringstream rss;
         //rss << "Start Month " << ij;
-        //rss << "Start Month " << setw(2) << setfill('0') << ij;
-        rss << ij;
+        rss << "Start Month " << setw(2) << setfill('0') << ij << ends;
+        //rss << ij;
         scd.region.title = (char*)rss.str().c_str();
+        //TRACE(rss.str().c_str())
+        //strcpy(scd.region.title,rss.str().c_str());
+        TTRACE(scd.region.title,rss.str().c_str())
         jni->addSquareRegion(scd, td_layout(ij));
       }
     }
