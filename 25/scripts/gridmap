@@ -27,19 +27,19 @@ REG_COLOR=0/128/0
 DOM_COLOR=$REG_COLOR
 
 #gmtset ANOT_FONT_SIZE_PRIMARY 12 BASEMAP_TYPE fancy PAPER_MEDIA letter+ PAGE_ORIENTATION portrait HEADER_FONT_SIZE 16 HEADER_FONT 1 MEASURE_UNIT inch PLOT_DEGREE_FORMAT dddF
-gmt gmtset ANOT_FONT_SIZE_PRIMARY 12 BASEMAP_TYPE fancy PAGE_ORIENTATION landscape HEADER_FONT_SIZE 16 HEADER_FONT 1 MEASURE_UNIT inch PLOT_DEGREE_FORMAT dddF
+gmtset ANOT_FONT_SIZE_PRIMARY 12 BASEMAP_TYPE fancy PAGE_ORIENTATION landscape HEADER_FONT_SIZE 16 HEADER_FONT 1 MEASURE_UNIT inch PLOT_DEGREE_FORMAT dddF
 
 # draw fancy base map with messy 1 deg grid
-gmt psbasemap -B10f5g1:.$1: $REGION $PROJECTION -V    -K > $EPS
+psbasemap -B10f5g1:.$1: $REGION $PROJECTION -V    -K > $EPS
 # draw fancy base map with messy 1/2 deg grid
 # psbasemap -B10f5g0.5:.$1: $REGION $PROJECTION -V    -K > $EPS
 
 #draw coastlines with wet and dry areas filled
 #gmt pscoast $REGION $PROJECTION -Di -G$DRY_COLOR -W$SHORELINE -V -O    >> $EPS
-gmt pscoast $REGION $PROJECTION -Di -G$DRY_COLOR  -Wfaint,$SHORELINE -V -O -K >> $EPS
+pscoast $REGION $PROJECTION -Di -G$DRY_COLOR  -Wfaint,$SHORELINE -V -O -K >> $EPS
 
 #draw region boundaries
-gmt psxy $1_regions.dat  $REGION $PROJECTION -Ap -Wthick,$REG_COLOR -V -O -K >> $EPS
+psxy $1_regions.dat  $REGION $PROJECTION -Ap -Wthick,$REG_COLOR -V -O -K >> $EPS
 
 #process the prn file to plot the landmask
 #echo "prn2gmt.sh " ./$1".prn"
@@ -55,10 +55,10 @@ gmt psxy $1_regions.dat  $REGION $PROJECTION -Ap -Wthick,$REG_COLOR -V -O -K >> 
 #
 #
 # draw region numbers 
-gmt pstext $1_region_numbers.dat $REGION $PROJECTION  -F+f,,$REG_COLOR -V -O -K >> $EPS
+pstext $1_region_numbers.dat $REGION $PROJECTION  -F+f,,$REG_COLOR -V -O -K >> $EPS
 #
 # draw domain boundary
-gmt psxy $1_domain.dat  $REGION $PROJECTION -Ap -Wfat,$REG_COLOR -V -O    >> $EPS
+psxy $1_domain.dat  $REGION $PROJECTION -Ap -Wfat,$REG_COLOR -V -O    >> $EPS
 #psxy $REGION $PROJECTION -Ap -L -Wfat,$REG_COLOR -V -O <<EOF   >> $EPS
 #>
 #115.00 -20.00
@@ -74,7 +74,7 @@ gmt psxy $1_domain.dat  $REGION $PROJECTION -Ap -Wfat,$REG_COLOR -V -O    >> $EP
 ##pscoast $REGION $PROJECTION -Di -G$DRY_COLOR  -W$SHORELINE -V -O      >> $EPS
 
 #extract coastline data for gmt2cst
-gmt pscoast $REGION $PROJECTION -Di -W > $MAP.gmt
+pscoast $REGION $PROJECTION -Di -W > $MAP.gmt
 #
 #rm  -v .gmt*
 gv $EPS &

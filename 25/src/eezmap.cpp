@@ -20,7 +20,7 @@ int main(void)
   XY_pair p0;
 
 
-  adstring eezname("/home/jsibert/movemod/eez.dat");
+  adstring eezname("../eez.dat");
   cifstream eez(eezname);
   if (!eez)
   {
@@ -53,8 +53,8 @@ int main(void)
 
   eez.close();
 
-  cout << "points: " << points;
-  clogf << "points: " << points;
+  cout << "\npoints: " << points << endl;
+  clogf << "\npoints: " << points << endl;
 
   dmatrix xx(1,nzone,1,points);
   dmatrix yy(1,nzone,1,points);
@@ -92,7 +92,7 @@ int main(void)
   adstring fleet_file;
   file_names >> root_name >> tag_file >> date_file >> fleet_file;
   cout << root_name << endl;
-  cout << fleet_file << endl;
+  //cout << fleet_file << endl;
 
   TRACE(root_name)
   adstring ma_name = root_name+adstring(".prn");
@@ -152,15 +152,56 @@ int main(void)
   }
 
 
+  adstring eez_name = root_name+adstring(".eez");
+  ofstream eezmap((char*)eez_name);
+
   cout << "#\n# zone map" << endl;
+  eezmap << "#\n# zone map" << endl;
+  
   for (int i = 1; i <= M; i++)
   {
     //double tx = sw_long.value()+i-0.5;
     int tx = sw_long.value()+i-1;
     if (i==1)
+    {
       cout << "#" << setw(3) << tx;
+      eezmap << "#" << setw(3) << tx;
+    }
     else
+    {
       cout << setw(4) << tx;
+      eezmap << setw(4) << tx;
+    }
+  }
+  cout << endl;
+  eezmap << endl;
+
+  for (int j = N; j >= 1; j--)
+  {
+    //double ty = sw_lat.value()+j-0.5;
+    //cout << setw(7) << setprecision(4) << ty;
+
+    for (int i = 1; i <= M; i++)
+    {
+       cout << setw(4) << zone_map(i,j);
+       eezmap << setw(4) << zone_map(i,j);
+       /*
+       int k = zone_map(i,j);
+       if (k>0)
+       {
+         zone_map(i,j) = k; // zone_number(k);
+       }
+       */
+    }
+    cout << endl;
+    eezmap << endl;
+  }
+  /*
+  cout << "#\n# renumbered zone map" << endl;
+  for (int i = 1; i <= M; i++)
+  {
+    int tx = sw_long.value()+i-1;
+    cout << setw(4) << tx;
   }
   cout << endl;
   for (int j = N; j >= 1; j--)
@@ -171,34 +212,10 @@ int main(void)
     for (int i = 1; i <= M; i++)
     {
        cout << setw(4) << zone_map(i,j);
-       int k = zone_map(i,j);
-       if (k>0)
-       {
-         zone_map(i,j) = k; // zone_number(k);
-       }
     }
     cout << endl;
   }
-/*
-  cout << "#\n# renumbered zone map" << endl;
-  for (i = 1; i <= M; i++)
-  {
-    int tx = sw_long.value()+i-1;
-    cout << setw(4) << tx;
-  }
-  cout << endl;
-  for (j = N; j >= 1; j--)
-  {
-    //double ty = sw_lat.value()+j-0.5;
-    //cout << setw(7) << setprecision(4) << ty;
-
-    for (int i = 1; i <= M; i++)
-    {
-       cout << setw(4) << zone_map(i,j);
-    }
-    cout << endl;
-  }
-*/
+  */
   cout << "#\n# number of zones  number of phases" << endl;
   cout << setw(11) << nzone << setw(17) << 1 << endl;
   cout << "#\n#        phase duration" << endl;
@@ -244,7 +261,7 @@ int main(void)
     //double Lat = param.index_to_lat(j) + dy2;
     //double tmp = edge + (double)(i-1)*dx/60.0;
     double Lat = sw_lat.value() + (double)(j-1)*deltax/60.0 + dx2;
-    TTRACE(j,Lat)
+    //TTRACE(j,Lat)
     //double Long = sw_long.value() - 0.5;
     //Lat ++;
     for (int i=1; i<=M; i++)
@@ -252,7 +269,7 @@ int main(void)
       //Long ++;
       //double Long = param.index_to_long(i) + dx2;
       double Long = sw_long.value() + (double)(i-1)*deltay/60.0 + dy2;
-      TTRACE(i,Long)
+      //TTRACE(i,Long)
       gmt << setw(8) << setprecision(5) << Long
           << setw(7) << setprecision(4) << Lat
           << setw(3) << size
@@ -272,9 +289,11 @@ int main(void)
   exit(0);
 }
 
+/** A version of atan2.
+*/
 double patan2(const double x, const double y)
 {
-  const double TWO_PI = 6.283185307;
+  const double TWO_PI = 2.0*M_PI;
   double a = atan2(x+1e-8,y);
   if (a < 0.0)
     a = TWO_PI + a;
@@ -283,55 +302,46 @@ double patan2(const double x, const double y)
   return (a);
 }
 
+/** Determine whether a point lies withing a polygon of exclusive
+economic zone vertices.
+\param xx Vector of EEZ longitudes
+\param yy Vector of EEZ latitudes
+\param x0 Longitude of point to be tested
+\param y0 Latitude of point to be tested
+\return 1 if point is inside EEZ; 0 otherwise 
+*/
+
 int inside(const dvector& xx, const dvector& yy, const double x0, const double y0)
 {
-  const double TWO_PI = 6.283185307;
+  const double TWO_PI = 2.0*M_PI;
   int i1 = xx.indexmin();
   int i2 = xx.indexmax();
 
-  //cout << endl;
-  //TTRACE(x0,y0)
-  //TTRACE(xx(i1),yy(i1))
   double dx = xx(i1) - x0;
   double dy = yy(i1) - y0;
-  //TTRACE(dx,dy)
   double a1 = patan2(dx,dy);
-  //TRACE(a1)
 
   double angle = 0.0;
   for (int i = i1+1; i <= i2; i++)
   {
-     //cout << endl;
-     //TRACE(i)
-     //TTRACE(xx(i),yy(i))
      double dx = xx(i) - x0;
      double dy = yy(i) - y0;
-     //TTRACE(dx,dy)
      double a2 = patan2(dx,dy);
      double da = a2 - a1;
-     //TTRACE(a2,da)
 
      if (da > M_PI)
      {
        da -= TWO_PI;
-       //TTRACE(a2,da)
      }
      if (da < -M_PI)
      {
        da += TWO_PI;
-       //TTRACE(a2,da)
      }
 
      angle += da;
      a1 = a2;
-     //TRACE(angle)
-
-     //cout << setw(13) << a1 << setw(13) << a2 << setw(13) << da << setw(13) << angle << endl;
   }
-  //TTRACE(angle,TWO_PI)
-  //TTRACE(angle - TWO_PI,fabs(angle - TWO_PI))
   double diff = fabs(angle)- TWO_PI;
-  //TTRACE(angle,diff)
   return (fabs(diff)< 1e-5);
 }
 
