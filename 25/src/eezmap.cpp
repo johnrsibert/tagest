@@ -1,4 +1,9 @@
 //$Id: eezmap.cpp 2903 2011-12-19 02:14:01Z jsibert $
+/** \file eezmap.cpp
+main for mapping EEZs to computaional grid.
+\ingroup preproc
+*/
+
 #include <cifstrem.h>
 #include <fvar.hpp>
 #include <iomanip>

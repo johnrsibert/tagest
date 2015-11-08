@@ -2,7 +2,7 @@
 /** \file halfmain.cpp
 main for halflife computation
 Sets global variables, exit function and calls par_t_reg::halflife(indexed_regional_fishery_record& irf0
-\ingroup sims
+\ingroup preproc
 */
 
 #include <iostream>
