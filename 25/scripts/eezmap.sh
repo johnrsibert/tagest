@@ -37,13 +37,14 @@ psbasemap -B10f5g1:.$1: $REGION $PROJECTION -V    -K > $EPS
 #gmt pscoast $REGION $PROJECTION -Di -G$DRY_COLOR -W$SHORELINE -V -O    >> $EPS
 pscoast $REGION $PROJECTION -Di -G$DRY_COLOR  -Wfaint,$SHORELINE -V -O -K >> $EPS
 
+#draw EEZs
+# beware of hard coded path to eez.dat
+gawk '{if (NF != 2){print ">"}else{print $0}}' ../eez.dat | psxy -m $REGION $PROJECTION -A -W$EEZ_COLOR -V -O -K >> $EPS
+
 #
 # draw EEZ numbers
 pstext gmt_eezmap.txt $REGION $PROJECTION $REG_COLOR -V -O    >> $EPS
 
-
-#extract coastline data for gmt2cst
-pscoast $REGION $PROJECTION -Di -W > $MAP.gmt
 #
 #rm  -v .gmt*
 gv $EPS &
