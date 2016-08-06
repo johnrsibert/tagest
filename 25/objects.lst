@@ -158,7 +158,6 @@ rtagmove15.o \
 fish_rc4.o \
 getretrn.o \
 fgsim10.o \
-ifr_avrg.o \
 displace2.o
 
 NTAGMOVE_OBJECTS = \
@@ -167,7 +166,6 @@ nn_paread.o \
 par_t_nn.o \
 ntagmove15.o \
 fish_rc4.o \
-ifr_avrg.o \
 displace2.o \
 nn_fgsim10.o \
 nn_savefit.o \
@@ -325,6 +323,7 @@ HALFLIFE_OBJECTS = \
 rhalfmain.o \
 halfproc.o \
 halfcomp.o \
+ifr_tab.o \
 fish_rc4.o
 
 RSIMSPAWN_OBJECTS = \

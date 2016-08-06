@@ -58,7 +58,7 @@ extern "C"  {
 } 
 /**
 \ingroup sims
-main() for the tagmove
+main() for the tagmove simulation
 */
 int main(void)
 {

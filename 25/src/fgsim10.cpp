@@ -655,6 +655,7 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::simulate(JNIEnv* _env, jobject 
 
     #undef USE_EFFORT_STREAM
     #ifdef USE_EFFORT_STREAM
+    TRACE(m_ipar[45])
     if(m_ipar[45] == 1)
     {
       year_month effort_date(1,date.get_month_value());
@@ -674,8 +675,9 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::simulate(JNIEnv* _env, jobject 
     //if(m_ipar[45] == 1)
     //  get_average_effort_array(*this, global_irfr, d3aEffort, date, ivEffortOccured);
     //else
+      TRACE(m_ipar[45])
       get_effort_array(*this, global_irfr, d3aEffort, date, ivEffortOccured);
-
+      TRACE(sum(d3aEffort))
     #endif //USE_EFFORT_STREAM
 
     //fish_mort_comp(FishMort1, d3aEffort, date);//mort=q*effort

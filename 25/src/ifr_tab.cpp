@@ -1,7 +1,7 @@
 //$Id: ifr_tab.cpp 2754 2011-01-02 20:57:07Z jsibert $
 #include <fvar.hpp>
 #include "fish_rec.h"
-#include <iomanip.h>
+#include <iomanip>
 
 void indexed_regional_fishery_record::tabulate(void)
 {

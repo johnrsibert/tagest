@@ -6,6 +6,11 @@
 
 extern ofstream clogf;
 
+//d3_array d3aEffort = make_d3_array(0, nfleet, 1, m, jlb, jub);
+
+
+
+/*
 indexed_regional_fishery_record::
  indexed_regional_fishery_record(indexed_regional_fishery_record& t)
  : fleet_list(t.fleet_list), index(t.index), nrec(t.nrec),
@@ -14,25 +19,11 @@ indexed_regional_fishery_record::
    nfleet(t.nfleet), first_year(t.first_year), last_year(t.last_year),
    rfrv_length(t.rfrv_length), normalized_flag(t.normalized_flag)
  {
-   /*
-   HERE
-   fishery_records.ptr = new regional_fishery_record_vector(1,rfrv_length);
-   for (int i = 1; i <= rfrv_length; i++)
-   {
-     fishery_records(i).i = t.fishery_records(i).i;
-     fishery_records(i).j = t.fishery_records(i).j;
-     fishery_records(i).effort = t.fishery_records(i).effort;
-     fishery_records(i).Catch = t.fishery_records(i).Catch;
-   }
-   */
-   //HERE
  }
 
 
-//void indexed_regional_fishery_record::tabulate(ostream& sout)
-indexed_regional_fishery_record
-  monthly_average_ifr(const char* root_name, const int m, const int n,
-                      const char* path)
+d3array& monthly_average_ifr(const int m, const int n, 
+                             const indexed_regional_fishery_recorda& irfr);
 {
   indexed_regional_fishery_record ifr(root_name, path);
   int afrvl = ifr.rfrv_length;
@@ -171,3 +162,4 @@ int main(int argc, char ** argv)
 
 #endif //ifdef __IFR_AVRG_TEST__
 
+*/

@@ -183,7 +183,8 @@ public:
 
    int get_effort(adstring& fleet, year_month& date, dmatrix& t);
    int get_effort(int flindex, int year, int month, dmatrix& t);
-   
+   void get_average_effort_array(const int month, d3_array& t);
+ 
    /** Gets catch. 
    \deprecated Never implemented.
    */
@@ -195,10 +196,6 @@ public:
 
    void tabulate(void);
    void tabulate(ostream& s);
-
-   friend indexed_regional_fishery_record
-      monthly_average_ifr(const char* root_name, const int m, const int n,
-                          const char* path = DEFAULT_PATH);
 
    /** Access mean effort.
    \param f int containing the fleet index.
@@ -215,15 +212,19 @@ public:
    int get_first_year() const { return first_year; }
    int get_last_year() const { return last_year; }
 
-   inline year_month_vector& get_first_effort_date()
-                       { return first_effort_date; }
-   inline year_month_vector& get_last_effort_date()
-                       { return last_effort_date; }
-   inline adstring_array& get_fleet_list() { return fleet_list; }  
+   const year_month_vector& get_first_effort_date(void) const { return first_effort_date; }
+   const year_month_vector& get_last_effort_date(void) const { return last_effort_date; }
+   const adstring_array& get_fleet_list(void) const { return fleet_list; }  
+   int get_nfleet(void) const { return nfleet; }
+   int get_length(void) const { return rfrv_length; }
 
    void set_fleet_usage_table(const  adstring_array& pfleet_list);
    inline int get_fleet_usage(const int flindex) const 
        { return fleet_usage_table(flindex); }
+
+   //friend indexed_regional_fishery_record
+   //   monthly_average_ifr(const char* root_name, const int m, const int n,
+   //                       const char* path = DEFAULT_PATH);
 };
 
 #undef USE_EFFORT_STREAM
@@ -251,4 +252,7 @@ class effort_stream
 };
 #endif //USE_EFFORT_STREAM
 
+indexed_regional_fishery_record
+      monthly_average_ifr(const char* root_name, const int m, const int n,
+                          const char* path = DEFAULT_PATH);
 #endif //__FISH_REC_H__

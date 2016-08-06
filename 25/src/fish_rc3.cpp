@@ -144,7 +144,7 @@ int indexed_regional_fishery_record::flindex (const adstring& fleet)
    return(fl);
 }
 
-/** Returns fishing effort by fleet and date.
+/** Returns fishing effort by fleet name and date.
 \param fleet adstring containing 4 byte fleet code
 \param date year_month object containing the year and month of fishing effort
 \param [out] t dmatrix containing fishing effort for fleet and date;
@@ -170,7 +170,7 @@ int indexed_regional_fishery_record::
   return(effort_occured);
 }
 
-/** Returns fishing effort by fleet and date.
+/** Returns fishing effort by fleet index and date.
 \param flindex int containing index of fleet
 \param year int containing year
 \param month int containing month
@@ -231,78 +231,6 @@ int indexed_regional_fishery_record::
   }
   return(effort_occured);
 }
-
-#ifdef USE_EFFORT_STREAM
-indexed_regional_fishery_record* effort_stream::irfr_ptr=NULL;
-/*
-int effort_stream::operator ! ()
-{
-  cout << "effort_stream::state = " << state << endl;
-  return(state);
-}    // non-zero if state failed
-*/
-
-void effort_stream::set_irfr_ptr(indexed_regional_fishery_record* ptr)
-{
-  if (irfr_ptr)
-  {
-    cerr << "effort_stream::irfr_ptr is already set" << endl;
-    exit(1);
-  }
-  irfr_ptr = ptr;
-}
-
-effort_stream::effort_stream(const char* file_name)
-{
-  //cout << file_name << "***" << endl;
-
-  state = 0;
-  if (!irfr_ptr)
-  {
-    state = 2;
-  }
-  else
-  {
-    adstring name(file_name);
-    adstring fleet = name(1, 4);
-    flindex = adstring_utils_index(irfr_ptr->fleet_list, fleet);
-    state = (flindex < 1);
-
-    if (name.size() == 8)//FFFFYYMM
-     {
-       year = atoi((char*)name(5, 6));
-       month = atoi((char*)name(7, 8));
-     }
-   else if (name.size() == 10)//FFFFYYYYMM
-      {
-        year = atoi((char*)name(5, 8));
-        month = atoi((char*)name(9, 10));
-      }
-
-    if (!state)
-    {
-      state += (irfr_ptr->index(flindex,year,month) <=0);
-      state += (irfr_ptr->nrec(flindex,year,month) <=0);
-    }
-  }
-}
-
-/** Retrieves effort matrix from ifr.
-\param[out] eff dmatrix. On return contains fishing effort for stream.
-\return reference to effort_stream
-*/
-effort_stream& effort_stream::operator >> (dmatrix& eff)
-{
-  if (!irfr_ptr)
-    state = 2;
-  else
-  {
-    int effort_occured = irfr_ptr->get_effort(flindex, year, month, eff);
-    state = (effort_occured <= 0);
-  }
-  return *this;
-}
-#endif //USE_EFFORT_STREAM
 
 /** Normaize fishing effort.
 Fishing effort for each fleet is divided by the mean effort for the fleet
@@ -415,4 +343,109 @@ void indexed_regional_fishery_record::set_fleet_usage_table(const  adstring_arra
                  << fleet_usage_table(f) << endl;
    }
 }
+
+/** Compute monthly effort by fleet averaged over years.
+\param month integer constant speficying the month to be averaged.
+\param t d3_array On return, contains the average effort over model domain.
+*/
+void indexed_regional_fishery_record::
+	get_average_effort_array(const int month, d3_array& t)
+{
+   dmatrix average_effort(t(1));//(1,m,1,n);
+   dmatrix monthly_effort(t(t.slicemin())); //(1,m,1,n);
+   t.initialize();
+   for (int fl = 1; fl <= nfleet; fl++)
+   {
+      int count = 0; // number of years included in the effort sum
+      average_effort.initialize();
+      for (int yr = first_year; yr <= last_year; yr++)
+      {
+         int effort_occured = get_effort(fl,yr,month,monthly_effort);
+         if (effort_occured)
+         {
+            count ++;
+            average_effort += monthly_effort;
+         }
+      } // yr loop
+      if (count)
+      {
+         average_effort /= (double)count;
+      }
+      t(fl) = average_effort;
+   }
+
+}
+
+#undef USE_EFFORT_STREAM
+#ifdef USE_EFFORT_STREAM
+indexed_regional_fishery_record* effort_stream::irfr_ptr=NULL;
+/*
+int effort_stream::operator ! ()
+{
+  cout << "effort_stream::state = " << state << endl;
+  return(state);
+}    // non-zero if state failed
+*/
+
+void effort_stream::set_irfr_ptr(indexed_regional_fishery_record* ptr)
+{
+  if (irfr_ptr)
+  {
+    cerr << "effort_stream::irfr_ptr is already set" << endl;
+    exit(1);
+  }
+  irfr_ptr = ptr;
+}
+
+effort_stream::effort_stream(const char* file_name)
+{
+  //cout << file_name << "***" << endl;
+
+  state = 0;
+  if (!irfr_ptr)
+  {
+    state = 2;
+  }
+  else
+  {
+    adstring name(file_name);
+    adstring fleet = name(1, 4);
+    flindex = adstring_utils_index(irfr_ptr->fleet_list, fleet);
+    state = (flindex < 1);
+
+    if (name.size() == 8)//FFFFYYMM
+     {
+       year = atoi((char*)name(5, 6));
+       month = atoi((char*)name(7, 8));
+     }
+   else if (name.size() == 10)//FFFFYYYYMM
+      {
+        year = atoi((char*)name(5, 8));
+        month = atoi((char*)name(9, 10));
+      }
+
+    if (!state)
+    {
+      state += (irfr_ptr->index(flindex,year,month) <=0);
+      state += (irfr_ptr->nrec(flindex,year,month) <=0);
+    }
+  }
+}
+
+/** Retrieves effort matrix from ifr.
+\param[out] eff dmatrix. On return contains fishing effort for stream.
+\return reference to effort_stream
+*/
+effort_stream& effort_stream::operator >> (dmatrix& eff)
+{
+  if (!irfr_ptr)
+    state = 2;
+  else
+  {
+    int effort_occured = irfr_ptr->get_effort(flindex, year, month, eff);
+    state = (effort_occured <= 0);
+  }
+  return *this;
+}
+#endif //USE_EFFORT_STREAM
 

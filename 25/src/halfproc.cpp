@@ -47,6 +47,7 @@ template <>
 void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishery_record& irfr)
 {
   cout << __FILE__ << ": par_t_reg::halflife" << endl;
+  irfr.tabulate(clogf);
   int m_ipar68 = m_ipar[68];  // graphics off
 
   int graphics_on = m_ipar68;
@@ -254,6 +255,7 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
 
   d3_array d3aEffort = make_d3_array(0, nfleet, 1, m, jlb, jub);
   d3aEffort.initialize();
+
   d3_array FishMort1 = make_d3_array(0, nfleet, 1, m, jlb, jub);
   FishMort1.initialize();
   d3_array FishMort0 = make_d3_array(0, nfleet, 1, m, jlb, jub);
@@ -318,8 +320,12 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
       }//ifnumMonthSeason
 
       int effort_month = date.get_month_value();
-      year_month effort_date(1,effort_month);
-      get_effort_array(*this, irfr, d3aEffort, effort_date, ivEffortOccured);
+      //year_month effort_date(1,effort_month);
+      //get_effort_array(*this, irfr, d3aEffort, effort_date, ivEffortOccured);
+      //get_average_effort_array(const int month, d3_array& t)
+      TRACE(effort_month)
+      global_irfr.get_average_effort_array(effort_month, d3aEffort);
+
       //fish_mort_comp(d3aFishMort, d3aEffort, date);//mort=q*effort
       fish_mort_comp(FishMort1, FishMort0, d3aEffort, date, d3aRelease(0), Recaps0, global_irfr.get_mean_effort() );//mort=q*effort
       total_mort_comp(FishMort1, FishMort0, dmTotMort);
