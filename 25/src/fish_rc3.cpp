@@ -232,7 +232,7 @@ int indexed_regional_fishery_record::
   return(effort_occured);
 }
 
-/** Normaize fishing effort.
+/** Normalize fishing effort.
 Fishing effort for each fleet is divided by the mean effort for the fleet
 over all dates in the indexed_regional_fishery_record instance.
 */
@@ -243,7 +243,7 @@ void indexed_regional_fishery_record::normalize(void)
   normalize(date1,date2);
 }
 
-/** Normaize fishing effort.
+/** Normalize fishing effort.
 Fishing effort for each fleet is divided by the mean effort for the fleet
 over the specified time interval.
 \param date1 year_month object containing the staring year/month for normalization
@@ -351,8 +351,12 @@ void indexed_regional_fishery_record::set_fleet_usage_table(const  adstring_arra
 void indexed_regional_fishery_record::
 	get_average_effort_array(const int month, d3_array& t)
 {
-   dmatrix average_effort(t(1));//(1,m,1,n);
-   dmatrix monthly_effort(t(t.slicemin())); //(1,m,1,n);
+// dmatrix average_effort(t(1));//(1,m,1,n);
+// dmatrix monthly_effort(t(t.slicemin())); //(1,m,1,n);
+   dmatrix average_effort;
+   dmatrix monthly_effort;
+   average_effort.allocate(t(t.slicemin()));
+   monthly_effort.allocate(t(t.slicemin()));
    t.initialize();
    for (int fl = 1; fl <= nfleet; fl++)
    {
