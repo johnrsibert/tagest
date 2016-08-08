@@ -346,7 +346,13 @@ void indexed_regional_fishery_record::set_fleet_usage_table(const  adstring_arra
 
 /** Compute monthly effort by fleet averaged over years.
 \param month integer constant speficying the month to be averaged.
-\param t d3_array On return, contains the average effort over model domain.
+\param t d3_array On return, contains the average effort over model domain
+  for the specified month:.
+\f[
+ \widehat{E_{fmij}} = \frac{\sum_{y}E_{yfmij}}{N^\prime_f}
+\f]
+where \f$ {N^\prime_f} \f$ is the number of years in which fishing
+effort was reported for fleet \f$f\f$.
 */
 void indexed_regional_fishery_record::
 	get_average_effort_array(const int month, d3_array& t)
