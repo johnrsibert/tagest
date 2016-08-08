@@ -10,7 +10,11 @@ Code for halflife computation
 
 #include <sstream>
 #include <ostream>
-using std::ostringstream;
+//using std::ostringstream;
+
+extern int saveinterflag;
+extern indexed_regional_fishery_record global_irfr;
+
 
 #ifdef __BCG_SOLVER__
   #include "linbcg.h"
@@ -20,7 +24,6 @@ using std::ostringstream;
   extern setsaveinterflag interflag;
   extern intersavetype *isp;
 #endif
-extern indexed_regional_fishery_record global_irfr;
 
 void halfcomp(const dmatrix& density, const imatrix map, dvector& sum0, 
               dvector& prev_sum, dvector& cur_sum, 
@@ -43,6 +46,16 @@ void get_effort_array(par_t<D3_ARRAY,MATRIX,VECTOR,DOUBLE>& param, indexed_regio
                       ivector& effort_occured);
 
 extern ofstream clogf;
+// copied from hesscmp2.cpp
+int file_exists(const char* name)
+{
+  ifstream f(name);
+  if (f)
+    return(1);
+  else
+    return(0);
+}
+
 template <>
 void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishery_record& irfr)
 {
@@ -87,13 +100,12 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
   int monthly_tab = 0;
   int average_tab = 0;
   int density_tab = 0;
-  int average_plot = 0;
 
   TRACE(graphics_on)
   if (graphics_on)
   {
-    TRACE(jni)
     jni = new jnigraphics2();
+    TRACE(jni)
     if (!jni)
     {
       cerr << "Error creating instance of jnigraphics object. Exiting." << endl;
@@ -105,7 +117,6 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
     average_tab = tab_list(2);
     density_tab = tab_list(3);
 
-    jni->setTabTitle("Halflife by Start Month",monthly_tab);
     int tcol = 4;
     int trow = 3;
     if (m > n)
@@ -113,13 +124,14 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
       tcol = 3;
       trow = 4;
     }
+    int ij;
+
+    jni->setTabTitle("Halflife by Start Month",monthly_tab);
     mt_layout.allocate(1, trow*tcol);
     jni->addGridLayout(trow, tcol, mt_layout, monthly_tab);
-    td_layout.allocate(1, trow*tcol);
-    jni->addGridLayout(trow, tcol, td_layout, density_tab);
 
     jni->addStatusBar();
-
+    /*
     squareregiondef scm(m, n);
     scm.region.dx = deltax;
     scm.region.dy = deltay;
@@ -130,7 +142,7 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
     scm.legend.increment = 1;
     scm.legend.decimals = 0;
     scm.region.title=(char*)"Start Month 00";
-    int ij = 0; 
+    ij = 0; 
     for (int i = 1; i <= tcol; i++)
     {
       for (int j = 1; j <= trow; j++)
@@ -146,10 +158,11 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
         jni->addSquareRegion(scm, mt_layout(ij));
       }
     }
-
+    */
     jni->setTabTitle("Average Halflife",average_tab);
     ivector at_layout(1, 1);
     jni->addGridLayout(1, 1, at_layout, average_tab);
+    /*
     average_plot = at_layout(1);
     squareregiondef sca(m, n);
     sca.region.dx = deltax;
@@ -162,8 +175,10 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
     sca.legend.increment = 2;
     sca.legend.decimals = 0;
     jni->addSquareRegion(sca, average_plot);
-
+    */
     jni->setTabTitle("Tag Density [0,1]",density_tab);
+    td_layout.allocate(1, trow*tcol);
+    jni->addGridLayout(trow, tcol, td_layout, density_tab);
     squareregiondef scd(m, n);
     scd.region.dx = deltax;
     scd.region.dy = deltay;
@@ -181,7 +196,7 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
         ij ++;
         ostringstream rss;
         //rss << "Start Month " << ij;
-        rss << "Start Month " << setw(2) << setfill('0') << ij << ends;
+        rss << "Start Month " << setw(2) << setfill('0') << ij;// << ends;
         //rss << ij;
         scd.region.title = (char*)rss.str().c_str();
         //TRACE(rss.str().c_str())
@@ -196,7 +211,6 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
   //char junk;
   //cin >> junk; 
   //  exit(1);
-  HERE
 
   imatrix zonemap(1,m,1,n);
   adstring zm_name = "../"+pathname.getPathRoot()+".eez";
@@ -264,7 +278,6 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
   d3_array d3aRelease = make_d3_array(0, nfleet, 1, m, jlb, jub);
   d3aRelease.initialize();
 
-  HERE
 #ifdef __BCG_SOLVER__
   linbcg bcg(*this);
   bcg.set_tol(1e-8);
@@ -282,30 +295,27 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
   double prev_average = curr_average;
   for (int start_month = 1; start_month <= 12; start_month++)
   {
+    clogf << endl;
+    TRACE(start_month) 
     double curr_time = 0.0;
     double prev_time = curr_time;
     zonesum0.initialize();
 
+    year_month start_date(1,start_month); // average effort starts in year 1
+    year_month final_date = start_date + nmonth - 1;
+    TTRACE(start_date,final_date)
+
     // initialize tag density to 1.0
     tags = 1.0;
     prev_tags = tags;
-    year_month start_date(1,start_month); // average effort starts in year 1
-    year_month final_date = start_date + nmonth;
-    //half_life.initialize();
+    TTRACE(sum(tags),sum(prev_tags))
     half_life = -1.0;
     zone_half_life = -1.0;
- 
+    TTRACE(sum(half_life),sum(half_life))
+
     for (year_month date = start_date; date <= final_date; date++)
     {
       int numMonthSeason = get_season(date);
-      //char sbuf[80];
-      ostringstream ss; //(sbuf,80);
-      ss << " Fit p" << setw(2) << setfill('0') << hex << m_ipar[8]
-         << ": " << date
-         << ", Season " << numMonthSeason
-         << ", Start month " << setw(2) << setfill(' ') << dec << start_month
-         << ends;
-      //cout << sbuf << endl;
    
       //season change redo uvs
       if (numCurrentSeason != numMonthSeason)
@@ -320,10 +330,7 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
       }//ifnumMonthSeason
 
       int effort_month = date.get_month_value();
-      //year_month effort_date(1,effort_month);
-      //get_effort_array(*this, irfr, d3aEffort, effort_date, ivEffortOccured);
-      //get_average_effort_array(const int month, d3_array& t)
-      TRACE(effort_month)
+      TTRACE(date,effort_month)
       global_irfr.get_average_effort_array(effort_month, d3aEffort);
 
       //fish_mort_comp(d3aFishMort, d3aEffort, date);//mort=q*effort
@@ -337,10 +344,15 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
 
       if (graphics_on)
       {
+        ostringstream ss;
+        ss << " Fit p" << setw(2) << setfill('0') << hex << m_ipar[8]
+           << ": " << date
+           << ", Season " << numMonthSeason
+           << ", Start month " << setw(2) << setfill(' ') << dec << start_month;
+        //clogf << ss.str() << endl;
         jni->drawStatusBar((char*)ss.str().c_str());
 
-        //char jbuf[80];
-        ostringstream jss; //(jbuf,80);
+        ostringstream jss;
       #ifdef unix
         jss << "jpeg/"
       #else
@@ -351,7 +363,7 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
                     << setw(2) << setfill('0') << date.get_month_value()
                     << ".jpg" << ends;
 
-        jni->drawSquareRegion(half_life, mt_layout(start_month));
+        //jni->drawSquareRegion(half_life, mt_layout(start_month));
         jni->drawSquareRegion(tags, td_layout(start_month));
 
         if ( !(jni->paintAll()) )
@@ -381,7 +393,7 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
     //TTRACE(half_life, average_half_life)
     if (graphics_on)
     {
-      jni->drawSquareRegion(average_half_life, average_plot);
+    //  jni->drawSquareRegion(average_half_life, average_plot);
     }
   } //for (int start_month = 1; start_month <= 12; start_month++)
   if (graphics_on)
@@ -428,7 +440,7 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
 
   if (graphics_on)
   {
-    // wait untile the graphics system is closed
+    // wait until the graphics system is closed
     while ( (jni->paintAll()) ) {}
     exit(0);
   }

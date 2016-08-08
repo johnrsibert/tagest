@@ -10,7 +10,7 @@ main for halflife computation
 #include <adstring.hpp>
 #include <cifstrem.h>
 #include <time.h>
-#include <jni.h>
+//#include <jni.h>
 
 #include "par_t_reg.h"
 #include "fish_rec.h"
