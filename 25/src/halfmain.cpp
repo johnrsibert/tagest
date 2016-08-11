@@ -71,7 +71,7 @@ int main(void)
 #error Error: Undefined par_t derived class
 #endif
    TRACE(param.m_ipar(52))
-   if ((param.m_ipar(52) != 1) || (param.m_ipar(52) != 1))
+   if ((param.m_ipar(51) != 1) || (param.m_ipar(52) != 1))
    {
       cerr << "Error: Halflife computations can only be made for fits with normalized\n"
 	 "       fishing effort (flag 51) and scaled catchabilities (flag 52).\n"
@@ -89,7 +89,7 @@ int main(void)
    //global_irfr.tabulate(clogf);
    param.set_fishing_effort_normalization(global_irfr);
    param.savefit(0.0, 0, 0.0, ".ppp");
-   //interflag.setsaveinter(0);
+   interflag.setsaveinter(0);
 
    param.halflife(global_irfr);
    time(&time_sec);
