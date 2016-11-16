@@ -326,6 +326,13 @@ halfcomp.o \
 ifr_tab.o \
 fish_rc4.o
 
+DENSITYSIM_OBJECTS = \
+rdensitysimmain.o \
+densitysimproc.o \
+densitysimcomp.o \
+ifr_tab.o \
+fish_rc4.o
+
 RSIMSPAWN_OBJECTS = \
 rsimspawn.o
 

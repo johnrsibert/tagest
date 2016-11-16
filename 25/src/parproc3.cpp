@@ -210,7 +210,7 @@ void createParFile(const adstring & rootPath,
                  TRACE(n_valid_rel)
                  //TRACE(param.tr[n_valid_rel].tags)
                  //for pttp-skj: 1 degree accuracy 58.7%; 0.5 degree accuracy 43.5%
-                 param.tr[n_valid_rel].tags=param.tr[n_valid_rel].tags*0.587;
+                 param.tr[n_valid_rel].tags=param.tr[n_valid_rel].tags*1.0;
                  TRACE(param.tr[n_valid_rel].tags)
                  param.tr[n_valid_rel].tags=(param.tr[n_valid_rel].tags*valid_rec)/all_recaps; // new number of release R'(new release)=[R(total release)*r'(valid_rec)]/r(all_recaps)
                  //TRACE(param.tr[n_valid_rel].tags)

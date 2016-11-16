@@ -230,6 +230,9 @@ template < typename D3_ARRAY, typename MATRIX, typename VECTOR, typename DOUBLE 
    // halflife computation
    void halflife(indexed_regional_fishery_record & irfr);
 
+   // densitysim computation
+   void densitysim(indexed_regional_fishery_record & irfr);
+
    bool isRegional() const { return true; }
 
    dvariable computeObjectiveFunctionValue(model_parameters & parameters);

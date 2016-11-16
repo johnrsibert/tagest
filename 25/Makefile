@@ -103,6 +103,8 @@ walk$(EXE) \
 makemap$(EXE) \
 landmask2gmt$(EXE) \
 rhalflife$(EXE) \
+rdensitysim$(EXE) \
+eezmap$(EXE) \
 tpl
 
 neural_net: \
@@ -324,6 +326,9 @@ rtagmove25$(EXE): $(RTAGMOVE_OBJECTS:%.o=$(OBJ_DIR)/%.o) $(RTAGEST_OBJECTS:%.o=$
 ntagmove25: $(NTAGMOVE_OBJECTS:%.o=$(OBJ_DIR)/%.o) $(NNTAGEST_OBJECTS:%.o=$(OBJ_DIR)/%.o) libmovemod.a $(OBJ_DIR)/par_t_reg-computeObjectiveFunctionValue.o $(OBJ_DIR)/par_t_nn-computeObjectiveFunctionValue.o
 	@echo ------- Link $@; $(LL)  -o $@ $(filter-out $(OBJ_DIR)/ntagest14.o, $^) $(TAGMOVE_LFLAGS) $(LFLAGS)
 
+rdensitysim: $(DENSITYSIM_OBJECTS:%.o=$(OBJ_DIR)/%.o) $(RTAGEST_OBJECTS:%.o=$(OBJ_DIR)/%.o) libmovemod.a $(OBJ_DIR)/par_t_reg-computeObjectiveFunctionValue.o $(OBJ_DIR)/par_t_nn-computeObjectiveFunctionValue.o
+	@echo ------- Link $@; $(LL)  -o $@ $(filter-out $(OBJ_DIR)/rtagest14.o, $^) $(TAGMOVE_LFLAGS) $(LFLAGS)
+
 #rhalflife: rhalflife25
 rhalflife: $(HALFLIFE_OBJECTS:%.o=$(OBJ_DIR)/%.o) $(RTAGEST_OBJECTS:%.o=$(OBJ_DIR)/%.o) libmovemod.a $(OBJ_DIR)/par_t_reg-computeObjectiveFunctionValue.o $(OBJ_DIR)/par_t_nn-computeObjectiveFunctionValue.o
 	@echo ------- Link $@; $(LL)  -o $@ $(filter-out $(OBJ_DIR)/rtagest14.o, $^) $(TAGMOVE_LFLAGS) $(LFLAGS)
@@ -336,6 +341,9 @@ $(OBJ_DIR)/rtagmove15.o: tagmove15.cpp
 
 $(OBJ_DIR)/ntagmove15.o: tagmove15.cpp
 	@echo ------- Compiling $@; $(CC) -c $(CFLAGS) -D__NEURAL_NET__ -o $@ $<
+
+$(OBJ_DIR)/rdensitysimmain.o: densitysimmain.cpp
+	@echo ------- Compiling $@; $(CC) -c $(CFLAGS) -D__REGIONAL__ -o $@ $<
 
 $(OBJ_DIR)/rhalfmain.o: halfmain.cpp
 	@echo ------- Compiling $@; $(CC) -c $(CFLAGS) -D__REGIONAL__ -o $@ $<
