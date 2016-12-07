@@ -287,7 +287,7 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
   {
     double curr_time = 0.0;
     double prev_time = curr_time;
-    zonesum0.initialize();
+    //zonesum0.initialize();
 
     year_month start_date(1,start_month); // average effort starts in year 1
     year_month final_date = start_date + nmonth - 1;
