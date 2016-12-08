@@ -25,6 +25,7 @@ extern indexed_regional_fishery_record global_irfr;
   extern intersavetype *isp;
 #endif
 
+void initial_prev_zs(const dvector& sum0, dvector& prev_sum);
 void halfcomp(const dmatrix& density, const imatrix map, dvector& sum0, 
               dvector& prev_sum, dvector& cur_sum, 
               const double cur_time, double& prev_time,
@@ -287,7 +288,7 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
   {
     double curr_time = 0.0;
     double prev_time = curr_time;
-    zonesum0.initialize();
+    //zonesum0.initialize();
 
     year_month start_date(1,start_month); // average effort starts in year 1
     year_month final_date = start_date + nmonth - 1;
@@ -297,6 +298,7 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::halflife(indexed_regional_fishe
     prev_tags = tags;
     half_life = -1.0;
     zone_half_life = -1.0;
+    initial_prev_zs(zonesum0, prev_zs); // Assign starting values of prev_zs - required for estimation of halflives < 1 month
 
     for (year_month date = start_date; date <= final_date; date++)
     {
