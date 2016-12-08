@@ -88,7 +88,15 @@ void remove_tags(dmatrix& density, const imatrix map, const int region_drop)
     }
 }
 
-
+void initial_prev_zs(const dvector& sum0, dvector& prev_sum)
+{
+  int k1 = sum0.indexmin();
+  int k2 = sum0.indexmax();
+    for (int k = k1; k <= k2; k++)
+      {
+	prev_sum(k) = sum0(k);
+      }
+}
 
 void halfcomp(const dmatrix& density, dmatrix& prev_density, 
               const double curr_time, double& prev_time,

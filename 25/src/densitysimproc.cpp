@@ -31,6 +31,7 @@ void initialDensity(const dmatrix& density, const imatrix map, dvector& initial_
 void densitycomp(const dmatrix& density, const imatrix map,
                  const double curr_time, dmatrix& zone_density);
 void remove_tags(dmatrix& density, const imatrix map, const int region_drop);
+void initial_prev_zs(const dvector& sum0, dvector& prev_sum);
 void halfcomp(const dmatrix& density, const imatrix map, dvector& sum0, 
               dvector& prev_sum, dvector& cur_sum, 
               const double cur_time, double& prev_time,
@@ -249,8 +250,9 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::densitysim(indexed_regional_fis
     remove_tags(tags, zonemap, zn);
     
     densitycomp(tags, zonemap, 0, densitySum); // Add initial tag density to cumulative total
-    initialDensity(tags, zonemap, zonesum0); //Recalculate zonesum0 - sum of initial density by zone (required to prevent halflives calculated relative to density at end of time step 1)
+    initialDensity(tags, zonemap, zonesum0); //Recalculate zonesum0 - sum of initial density by zone (accounting for removal of tags from zone zn)
 
+    initial_prev_zs(zonesum0, prev_zs); // Assign starting values to prev_zs - required for estimation of halflives < 1 month
     
     for (year_month date = start_date; date <= final_date; date++)
     {
@@ -288,7 +290,7 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::densitysim(indexed_regional_fis
       coff.adi(tags, isp);
     #endif
       curr_time ++;
-      
+
       halfcomp(tags, prev_tags, curr_time, prev_time, 0.5, seedtags, half_life); 
       halfcomp(tags, zonemap, zonesum0, prev_zs, cur_zs, 
                curr_time, prev_time, 0.5, zone_half_life);
@@ -305,7 +307,7 @@ void par_t_reg<d3_array,dmatrix,dvector,double>::densitysim(indexed_regional_fis
     update_average(half_life, average_half_life, curr_average, prev_average);
     update_average(zone_half_life, average_zone_half_life, 
                    curr_average, prev_average);
-
+    
     // Catch instances where density in zone has not decreased by 50%..
     for (int k = 0; k <= max(zonemap); k++)
       {
