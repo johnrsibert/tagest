@@ -12,13 +12,54 @@ GLOBALS_SECTION
   #include "trace.h"
   #include <time.h>
 
+
+   // Inna Senina's rotated hyperbola function
+   dvariable rhyperbola_limit_one(const dvariable& x)
+   {
+      const double phi = M_PI/8.0;
+      const double a = 0.07;
+      const double eps=0.00101482322788;
+
+      const double e = 1.0/cos(phi);
+      const double b = a*sqrt(e*e-1.0);
+   
+      const double x0 = 1.0-eps;
+      const double y0 = 1.0;
+   
+      const double sinsq = sin(phi)*sin(phi);
+      const double cossq = 1.0-sinsq;
+      const double rasq  = 1.0/(a*a);
+      const double rbsq  = 1.0/(b*b);
+      const double A = sinsq*rasq - cossq*rbsq;
+      dvariable B = -2.0*(x-x0)*cos(phi)*sin(phi)*(rasq+rbsq);
+      dvariable C = 1.0-(x-x0)*(x-x0)*(sinsq*rbsq-cossq*rasq);
+   
+      dvariable y;
+      y = y0+(B+sqrt(B*B-4.0*A*C))/(2*A);
+   
+      return y;
+   } 
+
+   /** Rotated hyperbola approximation to a min(...) function.
+   Wrapper to call the rotated hypebola function
+   \param x Variable object to be compared with the minimum.
+   \param vmax Variable object containing the maximum value allowed for x.
+   \return Variable object containing the minimum of value of x or vmax,
+   */
+   dvariable hmin(const dvariable& x, const dvariable& vmax)
+   {
+      dvariable ret;
+
+      dvariable xarg = x - vmax + 1.0;
+      dvariable hl = rhyperbola_limit_one(xarg);
+      ret = vmax - 1.0 + hl;
+
+      return(ret);
+   }
+
   //void pad(){}
   //ostream & operator<<(const ostream & ostr, const dvar4_array & z) {return ostr;}
   //std::basic_ostream<char>&}’ from expression of type ‘const ostream {aka const std::basic_ostream<char>}’
-
-
-
-
   //#include <sys/sysinfo.h>
 
   //#include <factoral.h>
@@ -925,14 +966,21 @@ PROCEDURE_SECTION
       //param->fish_mort_comp(fish_mort, effort, date);
       param->fish_mort_comp(FishMort1, FishMort0, effort, date, release, 
                 Recaps0, irfr.get_mean_effort() );//mort=q*effort
+      // TP edit
+      if (months_at_liberty <= omit_months)
+      {
+        FishMort1.initialize(); // Set F to 0, so can then remove observed recoveries from tag density directly
+        FishMort0.initialize();
+	//TRACE(mort)
+      } // END TP edit
 
       param->total_mort_comp(FishMort1, FishMort0, total_mortality);
       
       coff.b_adjust(*param, total_mortality);
 
       //TTRACE(date, months_at_liberty)
-      //if (months_at_liberty > omit_months)
-      if (months_at_liberty != omit_months)
+      if (months_at_liberty > omit_months)
+      //if (months_at_liberty != omit_months)
       {
       #undef USE_EFFORTLESS_RECAPS
       #ifdef USE_EFFORTLESS_RECAPS
@@ -955,8 +1003,50 @@ PROCEDURE_SECTION
       total_tag_penalty<dvar3_array,dvar_matrix,dvar_vector,dvariable>(release, *param, tot_tag_pen);
       param->add_total_total_tag_penalty(tot_tag_pen);
       plike -= tot_tag_pen;
+      // TP edit
+      if (months_at_liberty <= omit_months)
+        {
+          //TRACE(release)
+	  /*TRACE(Recaps1)
+
+          // Remove recoveries from tag density (at beginning of time-step)
+          int i1 = release.rowmin();
+          int i2 = release.rowmax();
+          for (int i = i1; i <= i2; i++)
+            {
+              int j1 = release(i).indexmin();
+              int j2 = release(i).indexmax();
+              for(int j = j1; j <= j2; j++)
+                {
+                  release(i, j) = exp(-1.0*mort)*(release(i, j) - Recaps1(0, i, j));
+                }
+            }
+          //TRACE(release)*/
+        } // END TP edit
 
       coff.adi(release,NULL);
+      // TP edit
+      if (months_at_liberty <= omit_months)
+        {
+          //TRACE(release)
+          //TRACE(Recaps1)
+	  //double min_tags = 0.0
+          // Remove recoveries from tag density (at mid-point of time-step), and adjust for M
+          int i1 = release.rowmin();
+          int i2 = release.rowmax();
+          for (int i = i1; i <= i2; i++)
+            {
+              int j1 = release(i).indexmin();
+              int j2 = release(i).indexmax();
+              for(int j = j1; j <= j2; j++)
+                {
+                // release(i, j) = release(i, j) - exp(-0.5*mort) * Recaps1(0, i, j);
+		// if(release(i, j) < 0.0) release(i, j) = 0.0;
+                   release(i,j) = release(i,j) - hmin(exp(-0.5*mort) * Recaps1(0, i, j), release(i,j));
+                }
+            }
+          //TRACE(release)
+	}
     }
     if (param->isRegional())
     {
