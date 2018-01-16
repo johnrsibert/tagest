@@ -1,6 +1,4 @@
-<center>Movemod</center>
-======
-### <center>*The tagest-tagmove software suite for spatially resolved analysis fish tag data*</center>
+# The tagest-tagmove software suite for spatially resolved analysis fish tag data
 
 ## System requirements
 * linux operating system on 64bit architecture (Previous versions of
@@ -45,6 +43,9 @@ using template classes to implement different code for constant (eg
 double) and variable (eg dvariable) objects. Eun Jung Kim's models of
 FAD attraction and stickiness are implemted here.
 
+#### 25mt
+Multithread example using OpenMPI
+
 #### 25-alpha
 Sibert's attempt to create satisfactory alternatives for handling errors
 in reporting effort, missing effort and errors in reporting recaptures.
@@ -62,7 +63,10 @@ slower, memory deficient computers. At one time, it could be compiled
 under both both windows and linux. It is not compliant to current C++
 standards. This code produced the results in Sibert and Hampton (2003).
 
-####jnigraphics
+#### 21mt
+Multihread example using pthreads and thread pool.
+
+#### jnigraphics
 Java native mode interface graphics to implement the tagmove
 visualizations. Developed and maintained by Johnoel Ancheta.
 
