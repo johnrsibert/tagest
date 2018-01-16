@@ -1,0 +1,223 @@
+LIBMOVEMOD_OBJECTS = \
+adi.o  \
+adstring_utils.o \
+b_adjst2.o  \
+banner.o  \
+boundfn3.o  \
+capture4.o \
+coff_t.o  \
+coffcmp6.o  \
+coh_clps.o \
+coh_reld.o  \
+dcofcmp6.o  \
+dfadi.o  \
+dfb_adj2.o  \
+dfexplike.o \
+dfgammln.o \
+dfnblike2.o \
+dfpoislk.o  \
+dfloop1.o \
+dfreset3.o  \
+dfsfabs.o  \
+dfsigcmp.o  \
+dfsigntr.o  \
+dfsigpen.o  \
+dftridag.o  \
+dfuvcomp.o  \
+dfuvntr4.o  \
+dfuvs2.o  \
+dfvelpen.o  \
+displace2.o \
+eff_norm.o \
+efrtfile.o \
+explike.o \
+ext_numb.o  \
+factorl.o  \
+fish_rc2.o  \
+fish_rc3.o  \
+fish_rc4.o  \
+fish_rec.o  \
+fmortq.o  \
+gammln.o \
+geo_cord.o  \
+get_efrt.o  \
+getretrn.o  \
+intersav.o  \
+inside.o \
+ipar.o  \
+ipar_io.o  \
+iparname.o  \
+latitude.o  \
+longlat.o  \
+longtude.o  \
+make_d3a.o  \
+mat_avg.o  \
+modlarea.o  \
+mparead.o  \
+mymanip.o \
+nblike2.o \
+negtagpe.o  \
+nvarcalc.o  \
+obs_caps.o \
+par_seas.o  \
+par_t.o  \
+partreg.o  \
+pathpars.o \
+poisdev.o \
+poisslk.o  \
+position.o  \
+pparead.o  \
+prd_cap2.o  \
+prnstrem.o \
+psavefit.o  \
+ran1.o \
+readcaps.o  \
+recap_io.o  \
+recap_t.o  \
+recap_t2.o  \
+reset3.o  \
+resid_comp.o \
+reverse.o  \
+rparead.o  \
+rsavefit.o  \
+ruvscomp.o  \
+savetags.o \
+setvbnds.o  \
+shift.o  \
+shiftpos.o  \
+sigcomp.o  \
+sigintrp.o \
+sigpen.o  \
+slicesum.o \
+smoother.o  \
+tagrelio.o  \
+totl_chk.o \
+tottagpn.o  \
+tridag.o  \
+uvcomp.o  \
+uvintrp4.o  \
+uvsread.o  \
+velpen.o  \
+wrap_num.o  \
+xinit3.o  \
+xypair.o  \
+yr_mon2.o  \
+yrmonvec.o \
+zmortcmp.o
+
+
+RTAGEST_OBJECTS = \
+tpool.o \
+col_solve.o \
+row_solve.o \
+dfcol_solve.o \
+dfrow_solve.o \
+tagest14.o \
+fmm_disp.o  \
+rfgcomp.o
+
+
+RTAGMOVE_OBJECTS = \
+tagmove15.o \
+fgsim10.o \
+jrtagmove.o
+
+EXE_RTAGMOVE_OBJECTS = \
+exe_tagmove15.o \
+fgsim10.o
+
+PATTDISP_OBJECTS = \
+pattdsp8.o
+
+MAKEMAP_OBJECTS = \
+etopo5.o \
+gridmap.o \
+make_map.o
+ 
+MAKEIFR_OBJECTS = \
+ch_type.o \
+effproc.o \
+fish_rc2.o \
+imax.o \
+inside.o \
+makeifr.o \
+nearby.o \
+pareof.o \
+parproc3.o \
+mpar.o \
+ppar.o \
+recap_ck3.o \
+recap_t2.o \
+rec_sort.o \
+record3.o \
+recpmang3.o \
+relpmang3.o \
+rpar.o \
+rpreproc_main.o \
+shift.o \
+shiftpos.o \
+wrtag.o
+
+MAKEPAR_OBJECTS = \
+MakePar.o \
+ch_type.o \
+effproc.o \
+fish_rc2.o \
+imax.o \
+inside.o \
+mpar.o \
+nearby.o \
+pareof.o \
+parproc3.o \
+ppar.o \
+recap_ck3.o \
+recap_io.o \
+recap_t2.o \
+record3.o \
+recpmang3.o \
+rec_sort.o \
+relpmang3.o \
+rpar.o \
+rpreproc_main.o \
+shift.o \
+shiftpos.o \
+wrtag.o
+  
+FIT_TAB_OBJECTS = \
+fit_tab.o \
+xi_noscl.o
+
+RTAC_OBJECTS = \
+tac.o \
+displace2.o
+
+COVAR_OBJECTS = \
+covar.o \
+extra_s.o \
+hesscmp2.o \
+rfgcomp.o
+
+WORMWALK_OBJECTS = \
+tag_pack3.o \
+walk2.o \
+walkproc3.o
+#wormwalk.o
+
+
+GIS_FILES_OBJECTS = \
+gis_files.o
+
+POPSIM_OBJECTS = \
+fgpop4.o \
+gcomp.o \
+policy.o \
+popsim.o
+
+HALFLIFE_OBJECTS = \
+halfproc.o \
+halfmain.o \
+halfcomp.o \
+ifr_avrg.o \
+ifr_tab.o \
+fish_rc2.o \
+halflife.o

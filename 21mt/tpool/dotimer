@@ -1,0 +1,10 @@
+#!/bin/bash
+
+rm -fv timer.out tptest2.out
+
+for p in 0 1 2 3 4 8
+do
+  echo Timing $p processes.
+  /usr/bin/time -f"%C %e" -o timer.out -a tptest2 $p >>  tptest2.out
+done
+echo Done.

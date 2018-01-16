@@ -1,0 +1,24 @@
+/**
+ \mainpage 
+<center>
+\htmlonly
+<big>
+Documentation for <b>tagest</b>, <b>tagmove</b>, and related software code.
+<br>
+<br>
+Look at the "Related Pages" tab to see what has been deprecated and the "to do" list.
+</big>
+\endhtmlonly
+<br>
+<br>
+\image html small_tuna.gif
+</center><br>
+\defgroup preproc Preprocessors
+Details for preprocessors.
+\defgroup sims Simulators
+Diffusion and random walk simulators.
+\defgroup postproc Postprocessors
+Interpreting .par files
+\defgroup seapodym SEAPODYM Compatibility
+\defgroup TPL ADMB Template code.
+*/

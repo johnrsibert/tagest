@@ -1,0 +1,3 @@
+${GCC_HOME}/bin/g++ -fpermissive -Wno-deprecated -c -I. -I${ADMB_HOME}/include -I${AKIRA_DIR}/include -I${JAVA_DIR}/include  -I${JAVA_DIR}/include/linux -D__GNUDOS__ -DOPT_LIB -D__REGIONAL__ $1
+
+
