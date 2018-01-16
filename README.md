@@ -64,7 +64,7 @@ under both both windows and linux. It is not compliant to current C++
 standards. This code produced the results in Sibert and Hampton (2003).
 
 #### 21mt
-Multihread example using pthreads and thread pool.
+Multihread example using pthreads and thread pool to implement threading of the adi algorithm and its adjoint.
 
 #### jnigraphics
 Java native mode interface graphics to implement the tagmove
